@@ -185,6 +185,9 @@ const TradingViewChartBase = ({
       case "kuc":
         setProvider("kucoin");
         break;
+      case "okx":
+        setProvider("okx");
+        break;
       default:
         setProvider("binance");
         break;

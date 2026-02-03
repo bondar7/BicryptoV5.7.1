@@ -174,6 +174,12 @@ export class MarketDataWebSocketService {
       if (tickSize <= 0.1) return 50;
       if (tickSize <= 1) return 100;
       return 100;
+    } else if (provider === "okx") {
+      // OKX limits (use Binance-like defaults)
+      if (tickSize <= 0.01) return 40;
+      if (tickSize <= 0.1) return 80;
+      if (tickSize <= 1) return 160;
+      return 320;
     } else {
       // Binance and others
       if (tickSize <= 0.01) return 40;

@@ -24,6 +24,13 @@ const Exchanges = [
     version: "1.0.0",
     type: "spot",
   },
+  {
+    name: "okx",
+    title: "OKX",
+    productId: "5C2D9A1F",
+    version: "1.0.0",
+    type: "spot",
+  },
 ];
 
 /** @type {import('sequelize-cli').Migration} */

@@ -64,8 +64,12 @@ class ExchangeManager {
     const apiSecret = process.env[`APP_${provider.toUpperCase()}_API_SECRET`];
     const apiPassphrase =
       process.env[`APP_${provider.toUpperCase()}_API_PASSPHRASE`];
+    const allowPublicOnly = process.env.APP_EXCHANGE_PUBLIC_ONLY === "true";
 
-    if (!apiKey || !apiSecret || apiKey === "" || apiSecret === "") {
+    const hasCredentials =
+      !!apiKey && !!apiSecret && apiKey !== "" && apiSecret !== "";
+
+    if (!hasCredentials && !allowPublicOnly) {
       logError(
         "exchange",
         new Error(`API credentials for ${provider} are missing.`),
@@ -77,21 +81,25 @@ class ExchangeManager {
     }
 
     try {
-      let exchange = new ccxt.pro[provider]({
-        apiKey,
-        secret: apiSecret,
-        password: apiPassphrase,
-      });
+      let exchange = hasCredentials
+        ? new ccxt.pro[provider]({
+            apiKey,
+            secret: apiSecret,
+            password: apiPassphrase,
+          })
+        : new ccxt.pro[provider]();
 
-      const credentialsValid = await exchange.checkRequiredCredentials();
-      if (!credentialsValid) {
-        logError(
-          "exchange",
-          new Error(`API credentials for ${provider} are invalid.`),
-          __filename
-        );
-        await exchange.close();
-        exchange = new ccxt.pro[provider]();
+      if (hasCredentials) {
+        const credentialsValid = await exchange.checkRequiredCredentials();
+        if (!credentialsValid) {
+          logError(
+            "exchange",
+            new Error(`API credentials for ${provider} are invalid.`),
+            __filename
+          );
+          await exchange.close();
+          exchange = new ccxt.pro[provider]();
+        }
       }
 
       try {
