@@ -72,6 +72,9 @@ export class SequelizeSingleton {
   }
 
   private async syncDatabase() {
+    if (process.env.DB_SYNC === "false") {
+      return;
+    }
     try {
       await this.sequelize.sync({ alter: true });
     } catch (error) {
