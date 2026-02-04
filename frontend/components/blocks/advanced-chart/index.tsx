@@ -28,7 +28,7 @@ interface AdvancedChartProps {
   positions?: any[];
   isMarketSwitching?: boolean;
   onChartContextReady?: (context: any) => void;
-  marketType?: "spot" | "eco" | "futures";
+  marketType?: "spot" | "eco" | "futures" | "forex";
 }
 
 export default function AdvancedChart({

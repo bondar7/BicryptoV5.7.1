@@ -140,6 +140,7 @@ export default function OrdersPanel({
   const searchParams = useSearchParams();
   const marketType = searchParams.get("type") || "spot";
   const isFutures = marketType === "futures";
+  const isForex = marketType === "forex";
   const { user } = useUserStore();
   const { fetchWallets } = useWalletStore();
 
@@ -179,6 +180,7 @@ export default function OrdersPanel({
     if (!isMountedRef.current || !Array.isArray(data)) return;
 
     let shouldRefreshWallet = false;
+    let shouldRefreshHistory = false;
     setOpenOrders((prevOpenOrders) => {
       const newItems = [...prevOpenOrders];
       for (const orderItem of data) {
@@ -193,9 +195,7 @@ export default function OrdersPanel({
             // If the order is no longer open, remove it from open orders
             newItems.splice(index, 1);
             shouldRefreshWallet = true;
-
-            // Also refresh order history to include the updated order
-            fetchOrderHistory();
+            shouldRefreshHistory = true;
           } else {
             // Update existing open order (including partial fills)
             newItems[index] = {
@@ -208,11 +208,17 @@ export default function OrdersPanel({
           if (orderItem.status === "OPEN" || orderItem.status === "ACTIVE") {
             newItems.push(orderItem);
             shouldRefreshWallet = true;
+          } else {
+            shouldRefreshHistory = true;
           }
         }
       }
       return newItems;
     });
+
+    if (shouldRefreshHistory) {
+      fetchOrderHistory();
+    }
 
     // Refresh wallet balances if orders changed
     if (shouldRefreshWallet) {
@@ -238,9 +244,11 @@ export default function OrdersPanel({
       // Use the appropriate URL based on market type
       const url = isFutures
         ? `/api/futures/order?type=OPEN`
-        : isEco
-          ? `/api/ecosystem/order?type=OPEN`
-          : `/api/exchange/order?status=OPEN`;
+        : isForex
+          ? `/api/forex/order?status=OPEN`
+          : isEco
+            ? `/api/ecosystem/order?type=OPEN`
+            : `/api/exchange/order?status=OPEN`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -278,9 +286,11 @@ export default function OrdersPanel({
       // Use the appropriate URL based on market type
       const url = isFutures
         ? `/api/futures/order`
-        : isEco
-          ? `/api/ecosystem/order?type=HISTORY`
-          : `/api/exchange/order`;
+        : isForex
+          ? `/api/forex/order`
+          : isEco
+            ? `/api/ecosystem/order?type=HISTORY`
+            : `/api/exchange/order`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -383,9 +393,11 @@ export default function OrdersPanel({
     // Determine the market type
     const ordersMarketType: OrdersMarketType = isFutures
       ? "futures"
-      : isEco
-        ? "eco"
-        : "spot";
+      : isForex
+        ? "forex"
+        : isEco
+          ? "eco"
+          : "spot";
 
     // Subscribe to connection status
     const unsubscribeStatus = ordersWs.subscribeToConnectionStatus(
@@ -419,7 +431,7 @@ export default function OrdersPanel({
         unsubscribeRef.current = null;
       }
     };
-  }, [user?.id, isFutures, isEco]);
+  }, [user?.id, isFutures, isEco, isForex]);
 
   // Load data on component mount and when market type changes
   useEffect(() => {
@@ -430,7 +442,7 @@ export default function OrdersPanel({
         fetchPositions();
       }
     });
-  }, [isFutures, isEco]);
+  }, [isFutures, isEco, isForex]);
   useEffect(() => {
     if (activeTab === "ai") {
       fetchAiInvestments();
@@ -519,6 +531,11 @@ export default function OrdersPanel({
     try {
       setIsLoading(true);
       setError(null);
+
+      if (isForex) {
+        setError("Forex orders cannot be canceled");
+        return;
+      }
 
       // For ecosystem orders, use the order's createdAt timestamp
       // Convert Date to milliseconds if it's a Date object

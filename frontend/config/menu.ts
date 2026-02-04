@@ -930,11 +930,11 @@ export const userMenu: MenuItem[] = [
       {
         key: "user-trading-forex",
         title: "Forex",
-        href: "/forex",
+        href: "/trade?type=forex",
         icon: "mdi:chart-line-variant",
         extension: "forex",
         description:
-          "Access global foreign exchange markets with MetaTrader 4/5 integration, advanced charting, and institutional-grade execution.",
+          "Access global forex, stocks, and commodities with custom charting and real-time demo feeds.",
       },
       {
         key: "user-trading-p2p",

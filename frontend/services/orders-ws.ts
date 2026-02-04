@@ -25,7 +25,7 @@ export interface OrderData {
   updatedAt: string;
 }
 
-export type MarketType = "spot" | "eco" | "futures";
+export type MarketType = "spot" | "eco" | "futures" | "forex";
 
 export interface OrdersSubscription {
   userId: string;
@@ -58,10 +58,12 @@ export class OrdersWebSocketService {
       this.wsConnections.set("spot", `${baseWsUrl}/api/exchange/order`);
       this.wsConnections.set("eco", `${baseWsUrl}/api/ecosystem/order`);
       this.wsConnections.set("futures", `${baseWsUrl}/api/futures/order`);
+      this.wsConnections.set("forex", `${baseWsUrl}/api/forex/order`);
     } else {
       this.wsConnections.set("spot", "ws://localhost:3000/api/exchange/order");
       this.wsConnections.set("eco", "ws://localhost:3000/api/ecosystem/order");
       this.wsConnections.set("futures", "ws://localhost:3000/api/futures/order");
+      this.wsConnections.set("forex", "ws://localhost:3000/api/forex/order");
     }
 
     // Initialize connection status for all market types

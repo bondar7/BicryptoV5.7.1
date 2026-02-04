@@ -52,6 +52,7 @@ export interface OrderFormProps {
   onOrderSubmit?: (orderData: any) => Promise<any>;
   fetchWalletData: () => Promise<void>;
   isEco?: boolean;
+  marketType?: "spot" | "eco" | "forex";
   takerFee?: number;
   makerFee?: number;
 }

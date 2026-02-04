@@ -9,7 +9,7 @@ export enum ConnectionStatus {
 type MessageCallback = (data: any) => void;
 type StatusCallback = (status: ConnectionStatus) => void;
 
-export type MarketType = "spot" | "eco" | "futures";
+export type MarketType = "spot" | "eco" | "futures" | "forex";
 
 class WebSocketManager {
   private static instance: WebSocketManager;

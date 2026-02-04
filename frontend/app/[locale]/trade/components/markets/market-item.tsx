@@ -15,10 +15,10 @@ interface MarketItemProps {
   onSelect: (symbol: Symbol) => void;
   onToggleWatchlist: (
     symbol: string,
-    marketType: "spot" | "futures",
+    marketType: "spot" | "futures" | "forex",
     e: React.MouseEvent
   ) => void;
-  marketType: "spot" | "futures";
+  marketType: "spot" | "futures" | "forex";
   onSortVolume?: (e: React.MouseEvent) => void;
   onSortPrice?: (e: React.MouseEvent) => void;
 }
@@ -86,10 +86,12 @@ export function MarketItem({
                     "mr-1.5 px-1 py-0.5 text-[8px] rounded border",
                     market.type === "futures"
                       ? "bg-blue-100/70 dark:bg-blue-900/70 text-blue-700 dark:text-blue-400 border-blue-200/50 dark:border-blue-700/50"
-                      : "bg-emerald-100/70 dark:bg-emerald-900/70 text-emerald-700 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50"
+                      : market.type === "forex"
+                        ? "bg-amber-100/70 dark:bg-amber-900/70 text-amber-700 dark:text-amber-400 border-amber-200/50 dark:border-amber-700/50"
+                        : "bg-emerald-100/70 dark:bg-emerald-900/70 text-emerald-700 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50"
                   )}
                 >
-                  {market.type === "futures" ? "FUT" : "SPOT"}
+                  {market.type === "futures" ? "FUT" : market.type === "forex" ? "FX" : "SPOT"}
                 </div>
               )}
               {market.leverage && market.leverage > 1 && (
@@ -193,10 +195,16 @@ export function MarketItem({
                     "ml-1.5 px-1 py-0.5 text-[8px] rounded border",
                     market.type === "futures"
                       ? "bg-blue-100/70 dark:bg-blue-900/70 text-blue-700 dark:text-blue-400 border-blue-200/50 dark:border-blue-700/50"
-                      : "bg-emerald-100/70 dark:bg-emerald-900/70 text-emerald-700 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50"
+                      : market.type === "forex"
+                        ? "bg-amber-100/70 dark:bg-amber-900/70 text-amber-700 dark:text-amber-400 border-amber-200/50 dark:border-amber-700/50"
+                        : "bg-emerald-100/70 dark:bg-emerald-900/70 text-emerald-700 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-700/50"
                   )}
                 >
-                  {market.type === "futures" ? "FUT" : "SPOT"}
+                  {market.type === "futures"
+                    ? "FUT"
+                    : market.type === "forex"
+                      ? "FX"
+                      : "SPOT"}
                 </div>
               )}
               {market.leverage && market.leverage > 1 && (

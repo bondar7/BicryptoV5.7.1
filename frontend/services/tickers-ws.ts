@@ -10,6 +10,7 @@ export class TickersWebSocketManager {
   private spotWs: WebSocket | null = null;
   private ecoWs: WebSocket | null = null;
   private futuresWs: WebSocket | null = null;
+  private forexWs: WebSocket | null = null;
 
 
   // Connection states
@@ -17,12 +18,15 @@ export class TickersWebSocketManager {
   private ecoConnectionState: ConnectionStatus = ConnectionStatus.DISCONNECTED;
   private futuresConnectionState: ConnectionStatus =
     ConnectionStatus.DISCONNECTED;
+  private forexConnectionState: ConnectionStatus =
+    ConnectionStatus.DISCONNECTED;
 
 
   // Subscription counts to track when we can close connections
   private spotSubscriptionCount = 0;
   private ecoSubscriptionCount = 0;
   private futuresSubscriptionCount = 0;
+  private forexSubscriptionCount = 0;
 
 
   // Callbacks
@@ -32,6 +36,8 @@ export class TickersWebSocketManager {
     new Set();
   private futuresCallbacks: Set<(data: Record<string, TickerData>) => void> =
     new Set();
+  private forexCallbacks: Set<(data: Record<string, TickerData>) => void> =
+    new Set();
   private connectionStatusCallbacks: Set<(status: ConnectionStatus) => void> =
     new Set();
 
@@ -39,17 +45,20 @@ export class TickersWebSocketManager {
   private spotData: Record<string, TickerData> = {};
   private ecoData: Record<string, TickerData> = {};
   private futuresData: Record<string, TickerData> = {};
+  private forexData: Record<string, TickerData> = {};
 
   // Connection promises to prevent multiple connection attempts
   private spotConnectionPromise: Promise<void> | null = null;
   private ecoConnectionPromise: Promise<void> | null = null;
   private futuresConnectionPromise: Promise<void> | null = null;
+  private forexConnectionPromise: Promise<void> | null = null;
 
 
   // Connection timeouts to prevent premature closing
   private spotCloseTimeout: NodeJS.Timeout | null = null;
   private ecoCloseTimeout: NodeJS.Timeout | null = null;
   private futuresCloseTimeout: NodeJS.Timeout | null = null;
+  private forexCloseTimeout: NodeJS.Timeout | null = null;
 
 
   private isInitialized = false;
@@ -96,7 +105,8 @@ export class TickersWebSocketManager {
     if (
       this.spotConnectionState === ConnectionStatus.ERROR ||
       this.ecoConnectionState === ConnectionStatus.ERROR ||
-      this.futuresConnectionState === ConnectionStatus.ERROR
+      this.futuresConnectionState === ConnectionStatus.ERROR ||
+      this.forexConnectionState === ConnectionStatus.ERROR
     ) {
       return ConnectionStatus.ERROR;
     }
@@ -108,7 +118,9 @@ export class TickersWebSocketManager {
       (this.ecoSubscriptionCount > 0 &&
         this.ecoConnectionState === ConnectionStatus.CONNECTING) ||
       (this.futuresSubscriptionCount > 0 &&
-        this.futuresConnectionState === ConnectionStatus.CONNECTING)
+        this.futuresConnectionState === ConnectionStatus.CONNECTING) ||
+      (this.forexSubscriptionCount > 0 &&
+        this.forexConnectionState === ConnectionStatus.CONNECTING)
     ) {
       return ConnectionStatus.CONNECTING;
     }
@@ -120,7 +132,9 @@ export class TickersWebSocketManager {
       (this.ecoSubscriptionCount === 0 ||
         this.ecoConnectionState === ConnectionStatus.CONNECTED) &&
       (this.futuresSubscriptionCount === 0 ||
-        this.futuresConnectionState === ConnectionStatus.CONNECTED)
+        this.futuresConnectionState === ConnectionStatus.CONNECTED) &&
+      (this.forexSubscriptionCount === 0 ||
+        this.forexConnectionState === ConnectionStatus.CONNECTED)
     ) {
       return ConnectionStatus.CONNECTED;
     }
@@ -434,6 +448,92 @@ export class TickersWebSocketManager {
     return this.futuresConnectionPromise;
   }
 
+  // Connect to forex WebSocket
+  private connectForex(): Promise<void> {
+    // If already connecting, return the existing promise
+    if (this.forexConnectionPromise) {
+      return this.forexConnectionPromise;
+    }
+
+    // If already connected, return resolved promise
+    if (this.forexWs && this.forexConnectionState === ConnectionStatus.CONNECTED) {
+      return Promise.resolve();
+    }
+
+    // Create new connection
+    this.forexConnectionState = ConnectionStatus.CONNECTING;
+    this.updateAllConnectionStatus();
+
+    this.forexConnectionPromise = new Promise<void>((resolve, reject) => {
+      const url = this.createWebSocketUrl("api/forex/ticker");
+
+      try {
+        this.forexWs = new WebSocket(url);
+
+        this.forexWs.onopen = () => {
+          this.forexConnectionState = ConnectionStatus.CONNECTED;
+          this.updateAllConnectionStatus();
+
+          if (this.forexWs && this.forexWs.readyState === WebSocket.OPEN) {
+            this.forexWs.send(
+              JSON.stringify({
+                action: "SUBSCRIBE",
+                payload: { type: "tickers" },
+              })
+            );
+          }
+
+          resolve();
+        };
+
+        this.forexWs.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.data) {
+              Object.entries(data.data).forEach(([symbol, tickerData]) => {
+                if (tickerData && (tickerData as TickerData).last !== undefined) {
+                  this.forexData[symbol] = tickerData as TickerData;
+                }
+              });
+              this.notifyForexCallbacks(this.forexData);
+            }
+          } catch (error) {
+            console.error("Error parsing forex WebSocket message:", error);
+          }
+        };
+
+        this.forexWs.onerror = (error) => {
+          console.error("Forex WebSocket error:", error);
+          this.forexConnectionState = ConnectionStatus.ERROR;
+          this.updateAllConnectionStatus();
+          reject(error);
+        };
+
+        this.forexWs.onclose = () => {
+          console.log("Forex WebSocket closed");
+          this.forexWs = null;
+          this.forexConnectionState = ConnectionStatus.DISCONNECTED;
+          this.forexConnectionPromise = null;
+          this.updateAllConnectionStatus();
+
+          if (this.forexSubscriptionCount > 0 && !this.isClosing) {
+            setTimeout(() => {
+              this.connectForex().catch(console.error);
+            }, 5000);
+          }
+        };
+      } catch (error) {
+        console.error("Error creating forex WebSocket:", error);
+        this.forexConnectionState = ConnectionStatus.ERROR;
+        this.updateAllConnectionStatus();
+        this.forexConnectionPromise = null;
+        reject(error);
+      }
+    });
+
+    return this.forexConnectionPromise;
+  }
+
 
 
   // Subscribe to spot data
@@ -579,6 +679,16 @@ export class TickersWebSocketManager {
       this.futuresCloseTimeout = null;
     }
 
+    if (this.forexCloseTimeout) {
+      clearTimeout(this.forexCloseTimeout);
+      this.forexCloseTimeout = null;
+    }
+
+    if (this.forexCloseTimeout) {
+      clearTimeout(this.forexCloseTimeout);
+      this.forexCloseTimeout = null;
+    }
+
     // Return unsubscribe function
     return () => {
       this.futuresCallbacks.delete(callback);
@@ -600,6 +710,45 @@ export class TickersWebSocketManager {
           }
           this.futuresCloseTimeout = null;
         }, 5000); // 5 second delay before closing
+      }
+    };
+  }
+
+  // Subscribe to forex data
+  public subscribeToForexData(
+    callback: (data: Record<string, TickerData>) => void
+  ): () => void {
+    this.forexSubscriptionCount++;
+    this.forexCallbacks.add(callback);
+
+    if (Object.keys(this.forexData).length > 0) {
+      callback(this.forexData);
+    }
+
+    if (this.forexConnectionState !== ConnectionStatus.CONNECTED) {
+      this.connectForex().catch(console.error);
+    }
+
+    if (this.forexCloseTimeout) {
+      clearTimeout(this.forexCloseTimeout);
+      this.forexCloseTimeout = null;
+    }
+
+    return () => {
+      this.forexCallbacks.delete(callback);
+      this.forexSubscriptionCount--;
+
+      if (this.forexSubscriptionCount === 0 && this.forexWs) {
+        if (this.forexCloseTimeout) {
+          clearTimeout(this.forexCloseTimeout);
+        }
+        this.forexCloseTimeout = setTimeout(() => {
+          if (this.forexWs) {
+            this.forexWs.close();
+            this.forexWs = null;
+          }
+          this.forexCloseTimeout = null;
+        }, 5000);
       }
     };
   }
@@ -651,6 +800,17 @@ export class TickersWebSocketManager {
     });
   }
 
+  // Notify forex callbacks
+  private notifyForexCallbacks(data: Record<string, TickerData>): void {
+    this.forexCallbacks.forEach((callback) => {
+      try {
+        callback(data);
+      } catch (error) {
+        console.error("Error in forex callback:", error);
+      }
+    });
+  }
+
   // Update all connection status callbacks
   private updateAllConnectionStatus(): void {
     const status = this.getConnectionStatus();
@@ -688,14 +848,16 @@ export class TickersWebSocketManager {
     const hasInSpot = symbolVariations.some(s => this.spotData[s] !== undefined);
     const hasInEco = symbolVariations.some(s => this.ecoData[s] !== undefined);
     const hasInFutures = symbolVariations.some(s => this.futuresData[s] !== undefined);
+    const hasInForex = symbolVariations.some(s => this.forexData[s] !== undefined);
     
-    console.log(`Unsubscribing from symbol: ${symbol} (found in spot: ${hasInSpot}, eco: ${hasInEco}, futures: ${hasInFutures})`);
+    console.log(`Unsubscribing from symbol: ${symbol} (found in spot: ${hasInSpot}, eco: ${hasInEco}, futures: ${hasInFutures}, forex: ${hasInForex})`);
     
     // Remove the symbol from our data caches
     symbolVariations.forEach(s => {
       delete this.spotData[s];
       delete this.ecoData[s];
       delete this.futuresData[s];
+      delete this.forexData[s];
     });
     
     // If we have active WebSocket connections, send unsubscribe messages
@@ -735,6 +897,19 @@ export class TickersWebSocketManager {
         );
       } catch (error) {
         console.error(`Error unsubscribing from futures ticker for ${symbol}:`, error);
+      }
+    }
+
+    if (this.forexWs && this.forexConnectionState === ConnectionStatus.CONNECTED && hasInForex) {
+      try {
+        this.forexWs.send(
+          JSON.stringify({
+            action: "UNSUBSCRIBE",
+            payload: { type: "ticker", symbol }
+          })
+        );
+      } catch (error) {
+        console.error(`Error unsubscribing from forex ticker for ${symbol}:`, error);
       }
     }
 
@@ -778,25 +953,34 @@ export class TickersWebSocketManager {
       this.futuresWs = null;
     }
 
+    if (this.forexWs) {
+      this.forexWs.close();
+      this.forexWs = null;
+    }
+
 
 
     // Reset all state
     this.spotConnectionState = ConnectionStatus.DISCONNECTED;
     this.ecoConnectionState = ConnectionStatus.DISCONNECTED;
     this.futuresConnectionState = ConnectionStatus.DISCONNECTED;
+    this.forexConnectionState = ConnectionStatus.DISCONNECTED;
 
     this.spotSubscriptionCount = 0;
     this.ecoSubscriptionCount = 0;
     this.futuresSubscriptionCount = 0;
+    this.forexSubscriptionCount = 0;
 
     this.spotCallbacks.clear();
     this.ecoCallbacks.clear();
     this.futuresCallbacks.clear();
+    this.forexCallbacks.clear();
     this.connectionStatusCallbacks.clear();
 
     this.spotConnectionPromise = null;
     this.ecoConnectionPromise = null;
     this.futuresConnectionPromise = null;
+    this.forexConnectionPromise = null;
 
     this.isInitialized = false;
     this.isClosing = false;

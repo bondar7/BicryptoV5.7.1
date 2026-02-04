@@ -43,7 +43,7 @@ export default function TradingHeader({
 }: {
   currentSymbol?: Symbol;
   onSymbolChange?: (symbol: Symbol) => void;
-  marketType?: "spot" | "futures" | "eco";
+  marketType?: "spot" | "futures" | "eco" | "forex";
 }) {
   const t = useTranslations("trade/components/header/trading-header");
   const router = useRouter();
@@ -246,11 +246,15 @@ export default function TradingHeader({
     if (!currentSymbol) return;
 
     const unsubscribe = wishlistService.subscribe((wishlist) => {
-      setIsFavorite(wishlist.some((item) => item.symbol === currentSymbol));
+      setIsFavorite(
+        wishlist.some(
+          (item) => item.symbol === currentSymbol && item.marketType === marketType
+        )
+      );
     });
 
     return () => unsubscribe();
-  }, [currentSymbol]);
+  }, [currentSymbol, marketType]);
 
   // Set mounted state
   useEffect(() => {
@@ -297,7 +301,7 @@ export default function TradingHeader({
   // Toggle favorite status
   const toggleFavorite = () => {
     if (currentSymbol) {
-      wishlistService.toggleWishlist(currentSymbol);
+      wishlistService.toggleWishlist(currentSymbol, marketType || "spot");
     }
   };
 
@@ -344,7 +348,11 @@ export default function TradingHeader({
             {displaySymbol}
           </div>
           <div className="bg-zinc-100 dark:bg-zinc-800 text-xs px-1.5 py-0.5 rounded shrink-0 hidden sm:block">
-            {marketType === "futures" ? "Futures" : "Spot"}
+            {marketType === "futures"
+              ? "Futures"
+              : marketType === "forex"
+                ? "Forex"
+                : "Spot"}
           </div>
         </div>
       </div>

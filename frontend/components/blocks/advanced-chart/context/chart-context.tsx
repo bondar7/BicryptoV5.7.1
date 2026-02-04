@@ -186,7 +186,7 @@ interface ChartProviderProps {
   expiryMinutes?: number;
   isMarketSwitching?: boolean;
   onChartContextReady?: (context: any) => void;
-  marketType?: "spot" | "eco" | "futures";
+  marketType?: "spot" | "eco" | "futures" | "forex";
 }
 
 export const ChartProvider: React.FC<ChartProviderProps> = ({

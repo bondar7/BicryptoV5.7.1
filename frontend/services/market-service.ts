@@ -8,26 +8,31 @@ class MarketService {
   private spotMarkets: any[] = [];
   private futuresMarkets: any[] = [];
   private ecoMarkets: any[] = [];
+  private forexMarkets: any[] = [];
 
   // Loading states
   private isLoadingSpot = false;
   private isLoadingFutures = false;
   private isLoadingEco = false;
+  private isLoadingForex = false;
 
   // Data fetched flags
   private spotDataFetched = false;
   private futuresDataFetched = false;
   private ecoDataFetched = false;
+  private forexDataFetched = false;
 
   // Subscribers for data updates
   private spotSubscribers: Set<(markets: any[]) => void> = new Set();
   private futuresSubscribers: Set<(markets: any[]) => void> = new Set();
   private ecoSubscribers: Set<(markets: any[]) => void> = new Set();
+  private forexSubscribers: Set<(markets: any[]) => void> = new Set();
 
   // Promises to prevent duplicate fetches
   private spotPromise: Promise<any[]> | null = null;
   private futuresPromise: Promise<any[]> | null = null;
   private ecoPromise: Promise<any[]> | null = null;
+  private forexPromise: Promise<any[]> | null = null;
 
   private constructor() {}
 
@@ -63,6 +68,31 @@ class MarketService {
     } finally {
       this.isLoadingSpot = false;
       this.spotPromise = null;
+    }
+  }
+
+  // Fetch forex markets
+  public async getForexMarkets(): Promise<any[]> {
+    if (this.forexDataFetched) {
+      return this.forexMarkets;
+    }
+
+    if (this.forexPromise) {
+      return this.forexPromise;
+    }
+
+    this.isLoadingForex = true;
+    this.forexPromise = this.fetchForexMarkets();
+
+    try {
+      const markets = await this.forexPromise;
+      this.forexMarkets = markets;
+      this.forexDataFetched = true;
+      this.notifyForexSubscribers();
+      return markets;
+    } finally {
+      this.isLoadingForex = false;
+      this.forexPromise = null;
     }
   }
 
@@ -131,6 +161,21 @@ class MarketService {
     };
   }
 
+  // Subscribe to forex market updates
+  public subscribeToForexMarkets(
+    callback: (markets: any[]) => void
+  ): () => void {
+    this.forexSubscribers.add(callback);
+
+    if (this.forexDataFetched) {
+      callback(this.forexMarkets);
+    }
+
+    return () => {
+      this.forexSubscribers.delete(callback);
+    };
+  }
+
   // Get cached spot markets without fetching
   public getCachedSpotMarkets(): any[] {
     return this.spotMarkets;
@@ -141,6 +186,11 @@ class MarketService {
     return this.futuresMarkets;
   }
 
+  // Get cached forex markets without fetching
+  public getCachedForexMarkets(): any[] {
+    return this.forexMarkets;
+  }
+
   // Check if spot markets are loading
   public isSpotMarketsLoading(): boolean {
     return this.isLoadingSpot;
@@ -149,6 +199,10 @@ class MarketService {
   // Check if futures markets are loading
   public isFuturesMarketsLoading(): boolean {
     return this.isLoadingFutures;
+  }
+
+  public isForexMarketsLoading(): boolean {
+    return this.isLoadingForex;
   }
 
   // Private method to fetch spot markets from API
@@ -245,6 +299,35 @@ class MarketService {
     }
   }
 
+  // Private method to fetch forex markets from API
+  private async fetchForexMarkets(): Promise<any[]> {
+    try {
+      const response = await fetch("/api/forex/market");
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch forex markets: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        return data.map((market) => ({
+          ...market,
+          displaySymbol: market.symbol || `${market.currency}/${market.pair}`,
+          symbol: market.symbol || `${market.currency}/${market.pair}`,
+          metadata: market.metadata || { precision: { price: 4, amount: 2 } },
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error fetching forex markets:", error);
+      return [];
+    }
+  }
+
   // Notify spot market subscribers
   private notifySpotSubscribers(): void {
     this.spotSubscribers.forEach((callback) => {
@@ -267,11 +350,21 @@ class MarketService {
     });
   }
 
+  private notifyForexSubscribers(): void {
+    this.forexSubscribers.forEach((callback) => {
+      try {
+        callback(this.forexMarkets);
+      } catch (error) {
+        console.error("Error in forex market subscriber:", error);
+      }
+    });
+  }
+
   // Initialize all market data (called once on app load)
   public async initialize(): Promise<void> {
 
     try {
-      const promises = [this.getSpotMarkets()];
+      const promises = [this.getSpotMarkets(), this.getForexMarkets()];
       
       // Only fetch futures markets if the extension is available
       if (isExtensionAvailable("futures")) {
@@ -290,15 +383,19 @@ class MarketService {
     this.spotMarkets = [];
     this.futuresMarkets = [];
     this.ecoMarkets = [];
+    this.forexMarkets = [];
     this.spotDataFetched = false;
     this.futuresDataFetched = false;
     this.ecoDataFetched = false;
+    this.forexDataFetched = false;
     this.isLoadingSpot = false;
     this.isLoadingFutures = false;
     this.isLoadingEco = false;
+    this.isLoadingForex = false;
     this.spotPromise = null;
     this.futuresPromise = null;
     this.ecoPromise = null;
+    this.forexPromise = null;
   }
 }
 

@@ -12,7 +12,7 @@ interface ChartPanelProps {
   symbol: Symbol;
   onPriceUpdate?: (price: number) => void;
   metadata?: MarketMetadata;
-  marketType?: "spot" | "eco" | "futures";
+  marketType?: "spot" | "eco" | "futures" | "forex";
 }
 
 export default function ChartPanel({ symbol, onPriceUpdate, metadata, marketType: propMarketType }: ChartPanelProps) {
@@ -27,6 +27,7 @@ export default function ChartPanel({ symbol, onPriceUpdate, metadata, marketType
   const marketType = propMarketType || (
     type === "futures" ? "futures" :
     type === "spot-eco" ? "eco" :
+    type === "forex" ? "forex" :
     "spot"
   );
 

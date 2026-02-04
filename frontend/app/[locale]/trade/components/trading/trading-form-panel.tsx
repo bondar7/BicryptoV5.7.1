@@ -7,6 +7,7 @@ interface TradingFormPanelProps {
   isEco?: boolean;
   onOrderSubmit?: (orderData: any) => Promise<any>;
   isFutures?: boolean;
+  marketType?: "spot" | "eco" | "forex";
 }
 
 export default function TradingFormPanel({
@@ -14,6 +15,7 @@ export default function TradingFormPanel({
   isEco = false,
   onOrderSubmit,
   isFutures = false,
+  marketType,
 }: TradingFormPanelProps) {
   return (
     <div className="h-full">
@@ -23,6 +25,7 @@ export default function TradingFormPanel({
         <SpotTradingForm
           symbol={symbol}
           isEco={isEco}
+          marketType={marketType}
           onOrderSubmit={onOrderSubmit}
         />
       )}

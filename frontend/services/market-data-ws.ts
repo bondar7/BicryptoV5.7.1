@@ -54,7 +54,7 @@ export interface OHLCVData {
   data: Array<[number, number, number, number, number, number]>; // [timestamp, open, high, low, close, volume]
 }
 
-export type MarketType = "spot" | "eco" | "futures";
+export type MarketType = "spot" | "eco" | "futures" | "forex";
 
 export interface MarketDataSubscription {
   symbol: string;
@@ -131,6 +131,7 @@ export class MarketDataWebSocketService {
       this.wsConnections.set("spot", `${baseWsUrl}/api/exchange/market`);
       this.wsConnections.set("eco", `${baseWsUrl}/api/ecosystem/market`);
       this.wsConnections.set("futures", `${baseWsUrl}/api/futures/market`);
+      this.wsConnections.set("forex", `${baseWsUrl}/api/forex/market`);
     } else {
       this.wsConnections.set("spot", "ws://localhost:3000/api/exchange/market");
       this.wsConnections.set("eco", "ws://localhost:3000/api/ecosystem/market");
@@ -138,6 +139,7 @@ export class MarketDataWebSocketService {
         "futures",
         "ws://localhost:3000/api/futures/market"
       );
+      this.wsConnections.set("forex", "ws://localhost:3000/api/forex/market");
     }
 
     // Initialize connection status for all market types
@@ -840,6 +842,8 @@ export class MarketDataWebSocketService {
         return "/api/ecosystem/market";
       case "futures":
         return "/api/futures/market";
+      case "forex":
+        return "/api/forex/market";
       default:
         return "/api/exchange/market";
     }

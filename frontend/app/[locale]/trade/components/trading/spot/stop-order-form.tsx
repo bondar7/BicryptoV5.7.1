@@ -27,6 +27,7 @@ export default function StopOrderForm({
   onOrderSubmit,
   fetchWalletData,
   isEco,
+  marketType,
   takerFee = 0.001,
   makerFee = 0.001,
 }: OrderFormProps) {
@@ -195,7 +196,12 @@ export default function StopOrderForm({
       } else {
         // Default implementation - submit to the appropriate API endpoint
         // Use ecosystem endpoint if isEco is true, otherwise use exchange endpoint
-        const endpoint = isEco ? "/api/ecosystem/order" : "/api/exchange/order";
+        const endpoint =
+          marketType === "forex"
+            ? "/api/forex/order"
+            : isEco
+              ? "/api/ecosystem/order"
+              : "/api/exchange/order";
 
         const { data, error } = await $fetch({
           url: endpoint,

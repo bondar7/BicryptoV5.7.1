@@ -51,9 +51,9 @@ export type SortCriteria = Array<{
 
 // Update the MarketsPanelProps interface to include metadata
 export interface MarketsPanelProps {
-  onMarketSelect?: (symbol: Symbol, marketType?: "spot" | "eco" | "futures") => void;
+  onMarketSelect?: (symbol: Symbol, marketType?: "spot" | "eco" | "futures" | "forex") => void;
   currentSymbol?: Symbol;
-  defaultMarketType?: "spot" | "futures";
+  defaultMarketType?: "spot" | "futures" | "forex";
 }
 
 // Update the market interface to include metadata
@@ -72,6 +72,7 @@ export interface Market {
   isTrending: boolean;
   isHot: boolean;
   isEco?: boolean;
+  category?: string;
 
   metadata: {
     precision: {
@@ -84,5 +85,5 @@ export interface Market {
   fundingRate?: string;
   rawFundingRate?: number;
   leverage?: number;
-  type?: "spot" | "futures";
+  type?: "spot" | "futures" | "forex";
 }

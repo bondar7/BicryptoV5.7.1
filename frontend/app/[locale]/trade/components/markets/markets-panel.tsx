@@ -46,15 +46,19 @@ export default function MarketsPanel({
     useState<Symbol>(currentSymbol);
   const [futuresSelectedMarket, setFuturesSelectedMarket] =
     useState<Symbol>(currentSymbol);
+  const [forexSelectedMarket, setForexSelectedMarket] =
+    useState<Symbol>(currentSymbol);
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("markets");
-  const [marketType, setMarketType] = useState<"spot" | "futures">(
+  const [marketType, setMarketType] = useState<"spot" | "futures" | "forex">(
     defaultMarketType
   );
   const [markets, setMarkets] = useState<any[]>([]);
   const [futuresMarkets, setFuturesMarkets] = useState<FuturesMarket[]>([]);
+  const [forexMarkets, setForexMarkets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFuturesLoading, setIsFuturesLoading] = useState(true);
+  const [isForexLoading, setIsForexLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
     ConnectionStatus.DISCONNECTED
   );
@@ -65,6 +69,7 @@ export default function MarketsPanel({
   const [futuresData, setFuturesData] = useState<Record<string, TickerData>>(
     {}
   );
+  const [forexData, setForexData] = useState<Record<string, TickerData>>({});
 
   // Advanced market data for active market (like trading header)
   const [activeMarketData, setActiveMarketData] = useState<MarketTickerData | null>(null);
@@ -83,8 +88,10 @@ export default function MarketsPanel({
       // Update the appropriate selected market based on the current market type
       if (marketType === "spot") {
         setSpotSelectedMarket(currentSymbol);
-      } else {
+      } else if (marketType === "futures") {
         setFuturesSelectedMarket(currentSymbol);
+      } else {
+        setForexSelectedMarket(currentSymbol);
       }
     }
   }, [currentSymbol, marketType]);
@@ -115,10 +122,24 @@ export default function MarketsPanel({
     else {
       // Set market type if present in URL
       // Note: "spot-eco" should be treated as "spot" for tab purposes
-      if (typeParam === "spot" || typeParam === "spot-eco" || typeParam === "futures") {
-        const normalizedType = (typeParam === "spot-eco" ? "spot" : typeParam) as "spot" | "futures";
+      if (
+        typeParam === "spot" ||
+        typeParam === "spot-eco" ||
+        typeParam === "futures" ||
+        typeParam === "forex"
+      ) {
+        const normalizedType = (typeParam === "spot-eco" ? "spot" : typeParam) as
+          | "spot"
+          | "futures"
+          | "forex";
         setMarketType(normalizedType);
-        setActiveTab(normalizedType === "spot" ? "markets" : "futures");
+        setActiveTab(
+          normalizedType === "spot"
+            ? "markets"
+            : normalizedType === "futures"
+              ? "futures"
+              : "forex"
+        );
       } else {
         // If no type parameter, default to spot
         setMarketType("spot");
@@ -138,6 +159,8 @@ export default function MarketsPanel({
             setSpotSelectedMarket(fullSymbol);
           } else if (typeParam === "futures") {
             setFuturesSelectedMarket(fullSymbol);
+          } else if (typeParam === "forex") {
+            setForexSelectedMarket(fullSymbol);
           }
         }
       }
@@ -176,6 +199,12 @@ export default function MarketsPanel({
         });
       } else if (oldMarketType === "futures") {
         setFuturesData(prev => {
+          const newData = { ...prev };
+          delete newData[oldSymbol];
+          return newData;
+        });
+      } else if (oldMarketType === "forex") {
+        setForexData(prev => {
           const newData = { ...prev };
           delete newData[oldSymbol];
           return newData;
@@ -324,9 +353,70 @@ export default function MarketsPanel({
     });
   }, [markets, spotData, ecoData, activeMarketData, spotSelectedMarket, marketType]);
 
+  // Format forex markets with live data
+  const formattedForexMarkets = useMemo((): Market[] => {
+    return forexMarkets.map((market) => {
+      const symbol = `${market.currency}/${market.pair}` as Symbol;
+      const tickerKey = symbol;
+
+      const isActiveMarket =
+        symbol === forexSelectedMarket && marketType === "forex";
+
+      let tickerData: any;
+      if (isActiveMarket && activeMarketData) {
+        tickerData = {
+          last: activeMarketData.last || activeMarketData.close,
+          change: activeMarketData.change,
+          quoteVolume: activeMarketData.quoteVolume,
+        };
+      } else {
+        tickerData = forexData[tickerKey] || { last: 0, change: 0, quoteVolume: 0 };
+      }
+
+      const hasData = !!tickerData.last || tickerData.symbol === symbol;
+      const metadata =
+        typeof market.metadata === "string"
+          ? JSON.parse(market.metadata)
+          : market.metadata || { precision: { price: 4, amount: 2 } };
+
+      const price = hasData ? formatPrice(tickerData.last, metadata) : null;
+      const change = hasData ? formatPrice(tickerData.change || 0, metadata) : null;
+      const volume = hasData ? formatVolume(tickerData.quoteVolume || 0) : null;
+      const rawPrice = Number(tickerData.last || 0);
+      const rawChange = Number(tickerData.change || 0);
+      const rawVolume = Number(tickerData.quoteVolume || 0);
+      const isPositive = rawChange >= 0;
+
+      return {
+        symbol,
+        displaySymbol: symbol,
+        currency: market.currency,
+        pair: market.pair,
+        price,
+        rawPrice,
+        change,
+        rawChange,
+        volume,
+        rawVolume,
+        isPositive,
+        isTrending: false,
+        isHot: false,
+        metadata,
+        hasData,
+        type: "forex",
+        category: market.category,
+      } as Market;
+    });
+  }, [forexMarkets, forexData, activeMarketData, forexSelectedMarket, marketType]);
+
   // Subscribe to market data for active market (exactly like trading header)
   useEffect(() => {
-    const currentActiveSymbol = marketType === "spot" ? spotSelectedMarket : futuresSelectedMarket;
+    const currentActiveSymbol =
+      marketType === "spot"
+        ? spotSelectedMarket
+        : marketType === "futures"
+          ? futuresSelectedMarket
+          : forexSelectedMarket;
 
     if (!currentActiveSymbol) return;
 
@@ -337,10 +427,12 @@ export default function MarketsPanel({
     }
 
     // Determine the correct market type based on the current context
-    let subscriptionMarketType: "spot" | "eco" | "futures";
+    let subscriptionMarketType: "spot" | "eco" | "futures" | "forex";
 
-    if (marketType === "futures" && currentActiveSymbol === futuresSelectedMarket) {
+    if (marketType === "futures") {
       subscriptionMarketType = "futures";
+    } else if (marketType === "forex") {
+      subscriptionMarketType = "forex";
     } else {
       // For spot markets, check if it's an eco market
       const market = markets.find(m => m.symbol === currentActiveSymbol);
@@ -381,13 +473,18 @@ export default function MarketsPanel({
         activeMarketUnsubscribeRef.current = null;
       }
     };
-  }, [spotSelectedMarket, futuresSelectedMarket, marketType, markets, futuresMarkets]);
+  }, [spotSelectedMarket, futuresSelectedMarket, forexSelectedMarket, marketType, markets, futuresMarkets, forexMarkets]);
 
   // Handle market selection
   const handleMarketSelect = useCallback(
     (symbol: Symbol) => {
       // Get current selected market for comparison
-      const currentSelectedMarket = marketType === "spot" ? spotSelectedMarket : futuresSelectedMarket;
+      const currentSelectedMarket =
+        marketType === "spot"
+          ? spotSelectedMarket
+          : marketType === "futures"
+            ? futuresSelectedMarket
+            : forexSelectedMarket;
       
       // Skip if selecting the same market
       if (symbol === currentSelectedMarket) {
@@ -406,8 +503,10 @@ export default function MarketsPanel({
       // Update the appropriate selected market based on the current market type
       if (marketType === "spot") {
         setSpotSelectedMarket(symbol);
-      } else {
+      } else if (marketType === "futures") {
         setFuturesSelectedMarket(symbol);
+      } else {
+        setForexSelectedMarket(symbol);
       }
 
       // Find the current market to get currency and pair
@@ -422,11 +521,17 @@ export default function MarketsPanel({
           pair = market.pair || "USDT";
           isEco = market.isEco || false;
         }
-      } else {
+      } else if (marketType === "futures") {
         const market = futuresMarkets.find((m) => `${m.currency}/${m.pair}` === symbol);
         if (market) {
           currency = market.currency;
           pair = market.pair;
+        }
+      } else {
+        const market = forexMarkets.find((m) => `${m.currency}/${m.pair}` === symbol);
+        if (market) {
+          currency = market.currency;
+          pair = market.pair || "USD";
         }
       }
 
@@ -434,7 +539,7 @@ export default function MarketsPanel({
       const actualMarketType = marketType === "spot" && isEco ? "eco" : marketType;
 
       if (onMarketSelect) {
-        onMarketSelect(symbol, actualMarketType as "spot" | "eco" | "futures");
+        onMarketSelect(symbol, actualMarketType as "spot" | "eco" | "futures" | "forex");
       }
 
       if (currency && pair) {
@@ -448,12 +553,12 @@ export default function MarketsPanel({
         window.history.pushState({ path: url }, "", url);
       }
     },
-    [locale, pathname, marketType, onMarketSelect, markets, futuresMarkets, spotSelectedMarket, futuresSelectedMarket]
+    [locale, pathname, marketType, onMarketSelect, markets, futuresMarkets, forexMarkets, spotSelectedMarket, futuresSelectedMarket, forexSelectedMarket]
   );
 
   // Toggle watchlist
   const toggleWatchlist = useCallback(
-    (symbol: string, marketType: "spot" | "futures", e: React.MouseEvent) => {
+    (symbol: string, marketType: "spot" | "futures" | "forex", e: React.MouseEvent) => {
       e.stopPropagation();
       wishlistService.toggleWishlist(symbol, marketType);
     },
@@ -463,6 +568,7 @@ export default function MarketsPanel({
   useEffect(() => {
     setIsLoading(true);
     setIsFuturesLoading(true);
+    setIsForexLoading(true);
 
     // Initialize the WebSocket manager
     tickersWs.initialize();
@@ -482,9 +588,17 @@ export default function MarketsPanel({
       }
     );
 
+    const forexMarketsUnsubscribe = marketService.subscribeToForexMarkets(
+      (markets) => {
+        setForexMarkets(markets);
+        setIsForexLoading(false);
+      }
+    );
+
     // Try to get cached data immediately
     const cachedSpotMarkets = marketService.getCachedSpotMarkets();
     const cachedFuturesMarkets = marketService.getCachedFuturesMarkets();
+    const cachedForexMarkets = marketService.getCachedForexMarkets();
 
     if (cachedSpotMarkets.length > 0) {
       setMarkets(cachedSpotMarkets);
@@ -494,6 +608,11 @@ export default function MarketsPanel({
     if (cachedFuturesMarkets.length > 0) {
       setFuturesMarkets(cachedFuturesMarkets);
       setIsFuturesLoading(false);
+    }
+
+    if (cachedForexMarkets.length > 0) {
+      setForexMarkets(cachedForexMarkets);
+      setIsForexLoading(false);
     }
 
     // If no cached data, fetch from service
@@ -508,6 +627,13 @@ export default function MarketsPanel({
       marketService.getFuturesMarkets().catch((error) => {
         console.error("Error getting futures markets:", error);
         setIsFuturesLoading(false);
+      });
+    }
+
+    if (cachedForexMarkets.length === 0) {
+      marketService.getForexMarkets().catch((error) => {
+        console.error("Error getting forex markets:", error);
+        setIsForexLoading(false);
       });
     }
 
@@ -529,6 +655,10 @@ export default function MarketsPanel({
           setFuturesData(data);
         })
       : () => {}; // No-op unsubscribe function
+
+    const forexUnsubscribe = tickersWs.subscribeToForexData((data) => {
+      setForexData(data);
+    });
     
     const connectionStatusUnsubscribe =
       tickersWs.subscribeToConnectionStatus(setConnectionStatus);
@@ -537,9 +667,11 @@ export default function MarketsPanel({
     return () => {
       spotMarketsUnsubscribe();
       futuresMarketsUnsubscribe();
+      forexMarketsUnsubscribe();
       spotUnsubscribe();
       ecoUnsubscribe();
       futuresUnsubscribe();
+      forexUnsubscribe();
       connectionStatusUnsubscribe();
     };
   }, [isExtensionAvailable]);
@@ -616,7 +748,11 @@ export default function MarketsPanel({
   // Filter markets based on search query and market type
   const getFilteredMarkets = useCallback(() => {
     const marketsToFilter =
-      marketType === "spot" ? formattedMarkets : formattedFuturesMarkets;
+      marketType === "spot"
+        ? formattedMarkets
+        : marketType === "futures"
+          ? formattedFuturesMarkets
+          : formattedForexMarkets;
 
     const filtered = marketsToFilter.filter(
       (market) =>
@@ -631,6 +767,7 @@ export default function MarketsPanel({
     marketType,
     formattedMarkets,
     formattedFuturesMarkets,
+    formattedForexMarkets,
     searchQuery,
     sortMarkets,
   ]);
@@ -648,8 +785,13 @@ export default function MarketsPanel({
           wishlistService.isInWishlist(market.symbol, "futures")
         )
         .map((market) => ({ ...market, type: "futures" as const })),
+      ...formattedForexMarkets
+        .filter((market) =>
+          wishlistService.isInWishlist(market.symbol, "forex")
+        )
+        .map((market) => ({ ...market, type: "forex" as const })),
     ]);
-  }, [formattedMarkets, formattedFuturesMarkets, sortMarkets]);
+  }, [formattedMarkets, formattedFuturesMarkets, formattedForexMarkets, sortMarkets]);
 
   // Update the handleTabChange function to also update market type
   const handleTabChange = (value: string) => {
@@ -669,6 +811,8 @@ export default function MarketsPanel({
       setMarketType("spot");
     } else if (value === "futures") {
       setMarketType("futures");
+    } else if (value === "forex") {
+      setMarketType("forex");
     }
 
     // Don't update URL here - only update URL when a market is explicitly selected
@@ -676,7 +820,11 @@ export default function MarketsPanel({
 
   // Get the currently selected market based on the active tab
   const getSelectedMarket = () => {
-    return marketType === "spot" ? spotSelectedMarket : futuresSelectedMarket;
+    return marketType === "spot"
+      ? spotSelectedMarket
+      : marketType === "futures"
+        ? futuresSelectedMarket
+        : forexSelectedMarket;
   };
 
   return (
@@ -686,7 +834,7 @@ export default function MarketsPanel({
         className="w-full flex flex-col h-full overflow-hidden"
         onValueChange={handleTabChange}
       >
-        <TabsList className="w-full grid grid-cols-3">
+        <TabsList className="w-full grid grid-cols-4">
           <TabTrigger value="watchlist" icon={<Star className="h-3 w-3" />}>
             {t("Watchlist")}
           </TabTrigger>
@@ -695,6 +843,9 @@ export default function MarketsPanel({
           </TabTrigger>
           <TabTrigger value="futures" icon={<Zap className="h-3 w-3" />}>
             {t("Futures")}
+          </TabTrigger>
+          <TabTrigger value="forex" icon={<BarChart2 className="h-3 w-3" />}>
+            {t("Forex")}
           </TabTrigger>
         </TabsList>
 
@@ -754,6 +905,37 @@ export default function MarketsPanel({
               onMarketSelect={handleMarketSelect}
               onToggleWatchlist={toggleWatchlist}
               marketType="futures"
+              onSortVolume={() => handleSort("volume")}
+              onSortPrice={() => handleSort("price")}
+            />
+          </div>
+        </TabContent>
+
+        <TabContent
+          value="forex"
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <SearchBar
+            placeholder="Search forex..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
+
+          <ColumnHeaders
+            leftColumn={{ label: "Symbol", sortField: "name" }}
+            rightColumn={{ label: "24h Change", sortField: "change" }}
+            sortCriteria={sortCriteria}
+            onSort={handleSort}
+          />
+
+          <div className="overflow-y-auto flex-1 min-h-0 scrollbar-none">
+            <MarketList
+              markets={filteredMarkets}
+              isLoading={isForexLoading}
+              selectedMarket={forexSelectedMarket}
+              onMarketSelect={handleMarketSelect}
+              onToggleWatchlist={toggleWatchlist}
+              marketType="forex"
               onSortVolume={() => handleSort("volume")}
               onSortPrice={() => handleSort("price")}
             />

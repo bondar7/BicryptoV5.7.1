@@ -10,10 +10,12 @@ import {
   Activity,
   ArrowDownCircle,
   ArrowUpCircle,
+  TrendingUp,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const navItems: NavItem[] = [
+  { title: "Markets", href: "/admin/forex/market", icon: TrendingUp },
   { title: "Accounts", href: "/admin/forex/account", icon: ClipboardList },
   { title: "Plans", href: "/admin/forex/plan", icon: Rocket },
   { title: "Durations", href: "/admin/forex/duration", icon: Clock },

@@ -63,13 +63,18 @@ function TradingInterface({
   onSymbolChange,
   isFutures = false,
   isEco = false,
+  isForex = false,
   handleFuturesOrderSubmit,
   currentMarket,
 }: {
   currentSymbol: Symbol;
-  onSymbolChange: (symbol: Symbol, marketType?: "spot" | "futures") => void;
+  onSymbolChange: (
+    symbol: Symbol,
+    marketType?: "spot" | "eco" | "futures" | "forex"
+  ) => void;
   isFutures?: boolean;
   isEco?: boolean;
+  isForex?: boolean;
   handleFuturesOrderSubmit?: (orderData: any) => Promise<any>;
   currentMarket?: any;
 }) {
@@ -108,6 +113,10 @@ function TradingInterface({
   const getMarketType = () => {
     if (isFutures) {
       return "futures";
+    }
+
+    if (isForex) {
+      return "forex";
     }
 
     // Check prop first (passed from parent's URL check) for immediate determination on page load
@@ -266,7 +275,7 @@ function TradingInterface({
         <MarketsPanel
           onMarketSelect={onSymbolChange}
           currentSymbol={currentSymbol}
-          defaultMarketType={isFutures ? "futures" : "spot"}
+          defaultMarketType={isForex ? "forex" : isFutures ? "futures" : "spot"}
         />
       );
     } else if (panelId === "orderbook") {
@@ -279,6 +288,7 @@ function TradingInterface({
           symbol={currentSymbol} 
           isFutures={isFutures}
           isEco={currentMarket?.isEco || false}
+          marketType={getMarketType()}
           onOrderSubmit={isFutures ? handleFuturesOrderSubmit : undefined}
         />
       );
@@ -401,7 +411,7 @@ function TradingInterface({
                         <MarketsPanel
                           onMarketSelect={onSymbolChange}
                           currentSymbol={currentSymbol}
-                          defaultMarketType={isFutures ? "futures" : "spot"}
+                          defaultMarketType={isForex ? "forex" : isFutures ? "futures" : "spot"}
                         />
                       )}
                       {leftGroupConfig?.collapsible && (
@@ -637,6 +647,7 @@ function TradingInterface({
                             symbol={currentSymbol}
                             isFutures={isFutures}
                             isEco={currentMarket?.isEco || false}
+                            marketType={getMarketType()}
                             onOrderSubmit={isFutures ? handleFuturesOrderSubmit : undefined}
                           />
                         </div>
@@ -739,12 +750,16 @@ export default function TradingLayout() {
   // Check if this is a futures market
   const isFutures = type === "futures";
 
+  // Check if this is a forex market
+  const isForex = type === "forex";
+
   // Check if this is an eco market from URL
   const isEcoFromUrl = type === "spot-eco";
 
   // State for market data
   const [spotMarkets, setSpotMarkets] = useState<any[]>([]);
   const [futuresMarkets, setFuturesMarkets] = useState<any[]>([]);
+  const [forexMarkets, setForexMarkets] = useState<any[]>([]);
   const [currentMarket, setCurrentMarket] = useState<any>(null);
 
   // Parse initial symbol from URL parameters
@@ -759,25 +774,34 @@ export default function TradingLayout() {
   const [currentSymbol, setCurrentSymbol] = useState<string>("");
   const [spotSymbol, setSpotSymbol] = useState<string>("");
   const [futuresSymbol, setFuturesSymbol] = useState<string>("");
+  const [forexSymbol, setForexSymbol] = useState<string>("");
   const [marketDataLoaded, setMarketDataLoaded] = useState(false);
 
   // Find current market data
   useEffect(() => {
-    const markets = isFutures ? futuresMarkets : spotMarkets;
+    const markets = isForex
+      ? forexMarkets
+      : isFutures
+        ? futuresMarkets
+        : spotMarkets;
     const market = markets.find(m => 
       m.symbol === currentSymbol || 
       `${m.currency}${m.pair}` === currentSymbol
     );
     setCurrentMarket(market);
-  }, [currentSymbol, isFutures, spotMarkets, futuresMarkets]);
+  }, [currentSymbol, isForex, isFutures, spotMarkets, futuresMarkets, forexMarkets]);
 
   // Initialize symbol from market data once markets are loaded
   useEffect(() => {
-    if (!marketDataLoaded || (!spotMarkets.length && !futuresMarkets.length)) return;
+    if (!marketDataLoaded || (!spotMarkets.length && !futuresMarkets.length && !forexMarkets.length)) return;
 
     // If we have a parsed symbol from URL, try to find it in markets
     if (parsedSymbol) {
-      const markets = isFutures ? futuresMarkets : spotMarkets;
+      const markets = isForex
+        ? forexMarkets
+        : isFutures
+          ? futuresMarkets
+          : spotMarkets;
       const market = markets.find(m =>
         m.symbol === parsedSymbol ||
         `${m.currency}${m.pair}` === parsedSymbol
@@ -788,6 +812,8 @@ export default function TradingLayout() {
         setCurrentSymbol(symbol);
         if (isFutures) {
           setFuturesSymbol(symbol);
+        } else if (isForex) {
+          setForexSymbol(symbol);
         } else {
           setSpotSymbol(symbol);
         }
@@ -796,24 +822,34 @@ export default function TradingLayout() {
     }
 
     // If no symbol from URL or market not found, use first available market
-    const markets = isFutures ? futuresMarkets : spotMarkets;
+    const markets = isForex
+      ? forexMarkets
+      : isFutures
+        ? futuresMarkets
+        : spotMarkets;
     if (markets.length > 0) {
       const firstMarket = markets[0];
       const symbol = firstMarket.symbol || `${firstMarket.currency}${firstMarket.pair}`;
       setCurrentSymbol(symbol);
       if (isFutures) {
         setFuturesSymbol(symbol);
+      } else if (isForex) {
+        setForexSymbol(symbol);
       } else {
         setSpotSymbol(symbol);
       }
     }
-  }, [marketDataLoaded, spotMarkets, futuresMarkets, isFutures, parsedSymbol]);
+  }, [marketDataLoaded, spotMarkets, futuresMarkets, forexMarkets, isForex, isFutures, parsedSymbol]);
 
   // Watch for URL changes and update symbol accordingly
   useEffect(() => {
     if (!marketDataLoaded || !parsedSymbol) return;
 
-    const markets = isFutures ? futuresMarkets : spotMarkets;
+    const markets = isForex
+      ? forexMarkets
+      : isFutures
+        ? futuresMarkets
+        : spotMarkets;
     const market = markets.find(m =>
       m.symbol === parsedSymbol ||
       `${m.currency}${m.pair}` === parsedSymbol
@@ -824,10 +860,13 @@ export default function TradingLayout() {
 
       // Only update if different from current symbol
       if (symbol !== currentSymbol) {
-        handleSymbolChange(symbol, isFutures ? "futures" : (market.isEco ? "eco" : "spot"));
+        handleSymbolChange(
+          symbol,
+          isForex ? "forex" : isFutures ? "futures" : (market.isEco ? "eco" : "spot")
+        );
       }
     }
-  }, [parsedSymbol, isFutures, marketDataLoaded, spotMarkets, futuresMarkets]);
+  }, [parsedSymbol, isForex, isFutures, marketDataLoaded, spotMarkets, futuresMarkets, forexMarkets]);
 
   // Add order submission handler for futures
   const handleFuturesOrderSubmit = async (orderData: any) => {
@@ -878,10 +917,10 @@ export default function TradingLayout() {
   // Update current symbol when switching between spot and futures
   useEffect(() => {
     // When switching market types, use the appropriate stored symbol
-    setCurrentSymbol(isFutures ? futuresSymbol : spotSymbol);
+    setCurrentSymbol(isForex ? forexSymbol : isFutures ? futuresSymbol : spotSymbol);
 
     // Don't update URL here - only update URL when a market is explicitly selected
-  }, [isFutures, spotSymbol, futuresSymbol]);
+  }, [isForex, isFutures, spotSymbol, futuresSymbol, forexSymbol]);
 
   // Add this inside the TradingLayout component, after the useState declarations
   // Initialize market data with the centralized service
@@ -899,6 +938,10 @@ export default function TradingLayout() {
         // Load futures markets
         const futuresMarketsData = await marketService.getFuturesMarkets();
         setFuturesMarkets(futuresMarketsData);
+
+        // Load forex markets
+        const forexMarketsData = await marketService.getForexMarkets();
+        setForexMarkets(forexMarketsData);
 
         // Initialize market data WebSocket
         marketDataWs.initialize();
@@ -930,7 +973,13 @@ export default function TradingLayout() {
     ordersWs.initialize();
 
     // Determine the market type
-    const ordersMarketType = isFutures ? "futures" : isEcoFromUrl ? "eco" : "spot";
+    const ordersMarketType = isFutures
+      ? "futures"
+      : isForex
+        ? "forex"
+        : isEcoFromUrl
+          ? "eco"
+          : "spot";
 
     // Subscribe to keep connection alive (no callback needed at this level)
     const unsubscribe = ordersWs.subscribe(
@@ -946,18 +995,30 @@ export default function TradingLayout() {
     return () => {
       unsubscribe();
     };
-  }, [user?.id, isFutures, isEcoFromUrl]);
+  }, [user?.id, isFutures, isEcoFromUrl, isForex]);
 
   // Handle symbol change
-  const handleSymbolChange = (symbol: Symbol, marketType?: "spot" | "eco" | "futures") => {
+  const handleSymbolChange = (
+    symbol: Symbol,
+    marketType?: "spot" | "eco" | "futures" | "forex"
+  ) => {
     // If marketType is provided, it means we're switching market types
-    const targetMarketType = marketType || (isFutures ? "futures" : "spot");
+    const targetMarketType =
+      marketType || (isForex ? "forex" : isFutures ? "futures" : "spot");
 
     // Get current symbol for comparison
-    const currentSymbolValue = targetMarketType === "futures" ? futuresSymbol : spotSymbol;
+    const currentSymbolValue =
+      targetMarketType === "futures"
+        ? futuresSymbol
+        : targetMarketType === "forex"
+          ? forexSymbol
+          : spotSymbol;
 
     // Skip if switching to the same symbol and market type
-    if (symbol === currentSymbolValue && targetMarketType === (isFutures ? "futures" : "spot")) {
+    if (
+      symbol === currentSymbolValue &&
+      targetMarketType === (isForex ? "forex" : isFutures ? "futures" : "spot")
+    ) {
       return;
     }
 
@@ -966,7 +1027,11 @@ export default function TradingLayout() {
     // maintain their own callback references
     if (currentSymbolValue && currentSymbolValue !== symbol) {
       try {
-        const oldMarketType = isFutures ? "futures" : (currentMarket?.isEco ? "eco" : "spot");
+        const oldMarketType = isForex
+          ? "forex"
+          : isFutures
+            ? "futures"
+            : (currentMarket?.isEco ? "eco" : "spot");
 
         window.dispatchEvent(new CustomEvent('market-switching-cleanup', {
           detail: {
@@ -985,6 +1050,8 @@ export default function TradingLayout() {
     // Update the appropriate symbol based on market type
     if (targetMarketType === "futures") {
       setFuturesSymbol(symbol);
+    } else if (targetMarketType === "forex") {
+      setForexSymbol(symbol);
     } else {
       setSpotSymbol(symbol);
     }
@@ -997,7 +1064,12 @@ export default function TradingLayout() {
 
     // STEP 3: Update URL with new market info
     // Find the market data to get proper currency and pair
-    const markets = targetMarketType === "futures" ? futuresMarkets : spotMarkets;
+    const markets =
+      targetMarketType === "forex"
+        ? forexMarkets
+        : targetMarketType === "futures"
+          ? futuresMarkets
+          : spotMarkets;
     const market = markets.find(m => 
       m.symbol === symbol || 
       `${m.currency}${m.pair}` === symbol
@@ -1012,6 +1084,8 @@ export default function TradingLayout() {
         urlType = "spot-eco";
       } else if (targetMarketType === "futures") {
         urlType = "futures";
+      } else if (targetMarketType === "forex") {
+        urlType = "forex";
       } else {
         urlType = "spot";
       }
@@ -1045,8 +1119,9 @@ export default function TradingLayout() {
   };
 
   // Helper to get market type for header and other components
-  const getHeaderMarketType = (): "spot" | "eco" | "futures" => {
+  const getHeaderMarketType = (): "spot" | "eco" | "futures" | "forex" => {
     if (isFutures) return "futures";
+    if (isForex) return "forex";
     // Check URL first for immediate determination on page load
     if (isEcoFromUrl) return "eco";
     // Then check current market data
@@ -1086,14 +1161,15 @@ export default function TradingLayout() {
           marketType={getHeaderMarketType()}
         />
         <div className="flex-1 overflow-hidden">
-          <TradingInterface
-            currentSymbol={currentSymbol}
-            onSymbolChange={handleSymbolChange}
-            isFutures={isFutures}
-            isEco={isEcoFromUrl}
-            handleFuturesOrderSubmit={handleFuturesOrderSubmit}
-            currentMarket={currentMarket}
-          />
+            <TradingInterface
+              currentSymbol={currentSymbol}
+              onSymbolChange={handleSymbolChange}
+              isFutures={isFutures}
+              isEco={isEcoFromUrl}
+              isForex={isForex}
+              handleFuturesOrderSubmit={handleFuturesOrderSubmit}
+              currentMarket={currentMarket}
+            />
         </div>
         <StatusBar />
       </div>

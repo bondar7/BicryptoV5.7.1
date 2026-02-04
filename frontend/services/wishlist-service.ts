@@ -1,7 +1,7 @@
 type WishlistItem = {
   symbol: string;
   addedAt: number;
-  marketType: "spot" | "futures"; // Add market type to distinguish between spot and futures
+  marketType: "spot" | "futures" | "forex"; // Add market type to distinguish between market groups
 };
 
 type WishlistSubscriber = (items: WishlistItem[]) => void;
@@ -63,7 +63,7 @@ class WishlistService {
 
   public toggleWishlist(
     symbol: string,
-    marketType: "spot" | "futures" = "spot"
+    marketType: "spot" | "futures" | "forex" = "spot"
   ) {
     // Find the item with matching symbol AND market type
     const index = this.items.findIndex(
@@ -86,7 +86,7 @@ class WishlistService {
 
   public isInWishlist(
     symbol: string,
-    marketType: "spot" | "futures" = "spot"
+    marketType: "spot" | "futures" | "forex" = "spot"
   ): boolean {
     return this.items.some(
       (item) => item.symbol === symbol && item.marketType === marketType

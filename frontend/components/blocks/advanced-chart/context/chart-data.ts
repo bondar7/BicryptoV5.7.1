@@ -24,7 +24,7 @@ interface ChartDataState {
   oldestLoadedTimestamp: number | null;
   newestLoadedTimestamp: number | null;
   price: number;
-  marketType?: "spot" | "eco" | "futures";
+  marketType?: "spot" | "eco" | "futures" | "forex";
 }
 
 // Configuration constants
@@ -300,12 +300,22 @@ export function useChartData(
         const to = endTime || Date.now();
         const from = to - candleCount * intervalMs;
 
-        const url = new URL("/api/exchange/chart", window.location.origin);
+        const apiEndpoint =
+          marketType === "eco"
+            ? "/api/ecosystem/chart"
+            : marketType === "futures"
+              ? "/api/futures/chart"
+              : marketType === "forex"
+                ? "/api/forex/chart"
+                : "/api/exchange/chart";
+        const url = new URL(apiEndpoint, window.location.origin);
         url.searchParams.set("symbol", formattedSymbol);
         url.searchParams.set("interval", interval);
         url.searchParams.set("from", from.toString());
         url.searchParams.set("to", to.toString());
-        url.searchParams.set("duration", intervalMs.toString());
+        if (apiEndpoint === "/api/exchange/chart") {
+          url.searchParams.set("duration", intervalMs.toString());
+        }
 
         log(`📊 Fetching ${isOlderData ? "older" : "initial"} OHLCV data:`, {
           symbol: formattedSymbol,
@@ -530,6 +540,7 @@ export function useChartData(
       setLastError,
       setStateVisibleRange,
       getCacheKey,
+      marketType,
     ]
   );
 
@@ -713,7 +724,7 @@ export function useChartData(
           );
         }
       },
-      "spot"
+      marketType || "spot"
     );
 
     return () => {
@@ -721,7 +732,7 @@ export function useChartData(
       unsubscribe();
       statusUnsubscribe();
     };
-  }, [updateCandleData, setWsStatus, setReconnectAttempt]);
+  }, [updateCandleData, setWsStatus, setReconnectAttempt, marketType]);
 
   // Direct timeframe change function - this is what we'll expose
   const changeTimeFrameDirectly = useCallback(

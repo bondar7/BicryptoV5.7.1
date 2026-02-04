@@ -29,7 +29,10 @@ import OrderBookPanel from "../orderbook/orderbook-panel";
 
 interface MobileLayoutProps {
   currentSymbol?: Symbol;
-  onSymbolChange?: (symbol: Symbol, marketType?: "spot" | "futures") => void;
+  onSymbolChange?: (
+    symbol: Symbol,
+    marketType?: "spot" | "eco" | "futures" | "forex"
+  ) => void;
 }
 
 export default function MobileLayout({
@@ -44,7 +47,14 @@ export default function MobileLayout({
   const [viewportHeight, setViewportHeight] = useState(0);
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "spot";
-  const marketType = type === "futures" ? "futures" : type === "spot-eco" ? "eco" : "spot";
+  const marketType =
+    type === "futures"
+      ? "futures"
+      : type === "spot-eco"
+        ? "eco"
+        : type === "forex"
+          ? "forex"
+          : "spot";
   const isFutures = marketType === "futures";
   const t = useTranslations("trade/components/layout/mobile-layout");
 
@@ -91,7 +101,7 @@ export default function MobileLayout({
 
   const handleMarketSelect = (
     symbol: Symbol,
-    marketType?: "spot" | "futures"
+    marketType?: "spot" | "eco" | "futures" | "forex"
   ) => {
     // Skip if selecting the same symbol
     if (symbol === currentSymbol) {
@@ -166,7 +176,8 @@ export default function MobileLayout({
                 <TradingFormPanel 
                   key={`mobile-trading-form-${currentSymbol}-${marketType}`}
                   symbol={currentSymbol} 
-                  isFutures={isFutures} 
+                  isFutures={isFutures}
+                  marketType={marketType}
                 />
               )}
             </div>

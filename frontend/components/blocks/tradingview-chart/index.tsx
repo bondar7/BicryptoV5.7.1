@@ -23,7 +23,7 @@ interface TradingViewChartProps {
   showExpiry?: boolean;
   expiryMinutes?: number;
   orders?: any[];
-  marketType?: "spot" | "eco" | "futures";
+  marketType?: "spot" | "eco" | "futures" | "forex";
   onPriceUpdate?: (price: number) => void;
   metadata?: MarketMetadata;
   isMarketSwitching?: boolean;
@@ -128,12 +128,15 @@ const TradingViewChartBase = ({
   metadata,
 }: TradingViewChartProps) => {
   // Derive market type from URL if not provided explicitly
-  const [derivedMarketType, setDerivedMarketType] = useState<"spot" | "eco" | "futures">(() => {
+  const [derivedMarketType, setDerivedMarketType] = useState<
+    "spot" | "eco" | "futures" | "forex"
+  >(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const typeParam = urlParams.get('type');
       if (typeParam === 'spot-eco') return 'eco';
       if (typeParam === 'futures') return 'futures';
+      if (typeParam === 'forex') return 'forex';
       return 'spot';
     }
     return marketTypeProp || 'spot';
@@ -146,6 +149,7 @@ const TradingViewChartBase = ({
       const typeParam = urlParams.get('type');
       if (typeParam === 'spot-eco') setDerivedMarketType('eco');
       else if (typeParam === 'futures') setDerivedMarketType('futures');
+      else if (typeParam === 'forex') setDerivedMarketType('forex');
       else if (typeParam === 'spot') setDerivedMarketType('spot');
       else if (marketTypeProp) setDerivedMarketType(marketTypeProp);
     }
@@ -237,7 +241,13 @@ const TradingViewChartBase = ({
     if (!symbol) return null;
 
     const isEco = marketType === "eco";
-    const historyPath = isEco ? `/api/ecosystem/chart` : `/api/exchange/chart`;
+    const historyPath = isEco
+      ? `/api/ecosystem/chart`
+      : marketType === "futures"
+        ? `/api/futures/chart`
+        : marketType === "forex"
+          ? `/api/forex/chart`
+          : `/api/exchange/chart`;
     const pricescale = getTradingViewPricescale(metadata);
 
     return {
@@ -269,7 +279,7 @@ const TradingViewChartBase = ({
               full_name: symbolName,
               description: symbolName,
               ticker: symbolName,
-              type: "crypto",
+              type: marketType === "forex" ? "forex" : "crypto",
               session: "24x7",
               format: "price",
               exchange: process.env.NEXT_PUBLIC_SITE_NAME,
@@ -368,11 +378,14 @@ const TradingViewChartBase = ({
 
         try {
           // Determine API endpoint based on market type
-          const apiEndpoint = marketType === "eco" 
-            ? "/api/ecosystem/chart" 
-            : marketType === "futures"
-            ? "/api/futures/chart"
-            : "/api/exchange/chart";
+          const apiEndpoint =
+            marketType === "eco"
+              ? "/api/ecosystem/chart"
+              : marketType === "futures"
+                ? "/api/futures/chart"
+                : marketType === "forex"
+                  ? "/api/forex/chart"
+                  : "/api/exchange/chart";
 
           // Define duration mapping for the main exchange API
           const intervalDurations: Record<string, number> = {

@@ -20,12 +20,14 @@ interface TradingFormPanelProps {
   symbol?: string;
   isEco?: boolean;
   onOrderSubmit?: (orderData: any) => Promise<any>;
+  marketType?: "spot" | "eco" | "forex";
 }
 
 export default function TradingFormPanel({
   symbol = "BTCUSDT",
   isEco = false,
   onOrderSubmit,
+  marketType = "spot",
 }: TradingFormPanelProps) {
   const t = useTranslations("trade/components/trading/spot/index");
   const [buyMode, setBuyMode] = useState(true);
@@ -80,7 +82,10 @@ export default function TradingFormPanel({
             return;
           }
 
-          const markets = await marketService.getSpotMarkets();
+          const markets =
+            marketType === "forex"
+              ? await marketService.getForexMarkets()
+              : await marketService.getSpotMarkets();
           // Normalize symbol format (convert BTC-USDT to BTC/USDT)
           const normalizedSymbol = symbol.replace('-', '/');
           const market = markets.find((m: any) => m.symbol === normalizedSymbol);
@@ -93,7 +98,7 @@ export default function TradingFormPanel({
             setPair(market.pair || "");
 
             // Set the correct market type (eco or spot)
-            setIsMarketEco(market.isEco || false);
+            setIsMarketEco(marketType === "forex" ? false : market.isEco || false);
 
             // Set precision based on market metadata
             if (metadata?.precision) {
@@ -108,16 +113,21 @@ export default function TradingFormPanel({
             }
 
             // Set fee rates from market metadata
-            if (metadata?.taker !== undefined) {
-              setTakerFee(Number(metadata.taker) / 100); // Convert from percentage to decimal
-            }
-            if (metadata?.maker !== undefined) {
-              setMakerFee(Number(metadata.maker) / 100); // Convert from percentage to decimal
+            if (marketType === "forex") {
+              setTakerFee(0);
+              setMakerFee(0);
+            } else {
+              if (metadata?.taker !== undefined) {
+                setTakerFee(Number(metadata.taker) / 100); // Convert from percentage to decimal
+              }
+              if (metadata?.maker !== undefined) {
+                setMakerFee(Number(metadata.maker) / 100); // Convert from percentage to decimal
+              }
             }
           } else {
             // Fallback: extract from symbol if market not found
             // Reset to prop value when market not found
-            setIsMarketEco(isEco);
+            setIsMarketEco(marketType === "forex" ? false : isEco);
 
             // Normalize symbol first
             const normalizedSymbol = symbol.replace('-', '/');
@@ -152,12 +162,13 @@ export default function TradingFormPanel({
     }
 
     // Wallet data will be fetched by the useEffect below once currency/pair are set
-  }, [symbol]);
+  }, [symbol, marketType]);
 
   // Fetch wallet data for both currencies
   const fetchWalletData = async () => {
     // Create a unique key for this market
-    const fetchKey = `${isMarketEco ? 'ECO' : 'SPOT'}-${currency}-${pair}`;
+    const walletType = marketType === "forex" ? "FIAT" : isMarketEco ? "ECO" : "SPOT";
+    const fetchKey = `${walletType}-${currency}-${pair}`;
 
     // Prevent duplicate calls for the same market
     const now = Date.now();
@@ -175,7 +186,6 @@ export default function TradingFormPanel({
       setIsLoadingWallet(true);
 
       // Use the symbol endpoint to fetch both currency and pair balances
-      const walletType = isMarketEco ? 'ECO' : 'SPOT';
       const endpoint = `/api/finance/wallet/symbol?type=${walletType}&currency=${currency}&pair=${pair}`;
 
       const { data, error} = await $fetch({
@@ -219,7 +229,7 @@ export default function TradingFormPanel({
         fetchWalletData();
       }
     }
-  }, [currency, pair, isMarketEco]);
+  }, [currency, pair, isMarketEco, marketType]);
 
   // Note: We don't auto-refresh wallet data on a timer
   // Wallet balance is updated when:
@@ -242,7 +252,7 @@ export default function TradingFormPanel({
     return () => {
       window.removeEventListener('walletUpdated', handleWalletUpdate);
     };
-  }, [currency, pair, isMarketEco]);
+  }, [currency, pair, isMarketEco, marketType]);
 
   // Subscribe to price updates
   useEffect(() => {
@@ -286,17 +296,21 @@ export default function TradingFormPanel({
     // Subscribe to ticker updates with a small delay to ensure proper cleanup
     const subscriptionTimeout = setTimeout(() => {
       // Determine market type: check isMarketEco state, then isEco prop, then URL
-      let marketType: "spot" | "eco" = "spot";
-      if (isMarketEco) {
-        marketType = "eco";
+      let effectiveMarketType: "spot" | "eco" | "forex" = "spot";
+      if (marketType === "forex") {
+        effectiveMarketType = "forex";
+      } else if (isMarketEco) {
+        effectiveMarketType = "eco";
       } else if (isEco) {
-        marketType = "eco";
+        effectiveMarketType = "eco";
       } else if (typeof window !== "undefined") {
         // Fallback: check URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const urlType = urlParams.get("type");
         if (urlType === "spot-eco") {
-          marketType = "eco";
+          effectiveMarketType = "eco";
+        } else if (urlType === "forex") {
+          effectiveMarketType = "forex";
         }
       }
 
@@ -304,7 +318,7 @@ export default function TradingFormPanel({
         {
           type: "ticker",
           symbol,
-          marketType,
+          marketType: effectiveMarketType,
         },
         handleTickerUpdate
       );
@@ -317,7 +331,7 @@ export default function TradingFormPanel({
         unsubscribeRef.current = null;
       }
     };
-  }, [symbol, pricePrecision, lastPrice, isEco]);
+  }, [symbol, pricePrecision, lastPrice, isEco, marketType]);
 
   // Shared props for order forms
   const sharedProps = {
@@ -336,6 +350,7 @@ export default function TradingFormPanel({
     onOrderSubmit,
     fetchWalletData,
     isEco: isMarketEco,
+    marketType,
     takerFee,
     makerFee,
   };

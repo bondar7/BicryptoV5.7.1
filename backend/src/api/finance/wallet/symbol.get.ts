@@ -20,7 +20,7 @@ export const metadata: OperationObject = {
       required: true,
       schema: {
         type: "string",
-        enum: ["ECO", "SPOT"],
+        enum: ["ECO", "SPOT", "FIAT"],
       },
       description: "The type of wallet to retrieve",
     },
