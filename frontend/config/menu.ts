@@ -11,6 +11,15 @@ export const adminMenu: MenuItem[] = [
       "Comprehensive administrative overview with real-time analytics, system health monitoring, and quick access to critical management functions.",
   },
   {
+    key: "admin-forex-markets",
+    title: "Forex Markets",
+    href: "/admin/forex/market",
+    permission: "access.forex.account",
+    icon: "ph:currency-dollar-simple-duotone",
+    description:
+      "Manage custom forex, stocks, and commodities feeds with price modification rules and admin controls.",
+  },
+  {
     key: "admin-user-management",
     title: "Users",
     href: "/admin/crm",
@@ -183,7 +192,11 @@ export const adminMenu: MenuItem[] = [
         icon: "ph:credit-card-duotone",
         description:
           "Complete payment infrastructure management including gateways, methods, and transaction processing oversight.",
-        permission: ["access.deposit.gateway", "access.deposit.method", "access.deposit"],
+        permission: [
+          "access.deposit.gateway",
+          "access.deposit.method",
+          "access.deposit",
+        ],
         child: [
           {
             key: "admin-payment-gateways",
@@ -232,33 +245,33 @@ export const adminMenu: MenuItem[] = [
               "Manage exchange integrations with liquidity providers, API configurations, and performance monitoring.",
           },
         ],
+      },
+      {
+        key: "admin-binary-trading",
+        title: "Binary Options",
+        icon: "humbleicons:exchange-vertical",
+        href: "/admin/finance/binary",
+        description:
+          "Binary options trading system with market setup, duration management, and payout configuration.",
+        permission: ["access.binary.market", "access.binary.duration"],
+        child: [
+          {
+            key: "admin-binary-markets",
+            title: "Binary Markets",
+            href: "/admin/finance/binary/market",
+            permission: "access.binary.market",
+            icon: "ri:exchange-2-line",
+            description:
+              "Configure binary options markets with asset pairs, trading parameters, and market hours.",
           },
           {
-            key: "admin-binary-trading",
-            title: "Binary Options",
-            icon: "humbleicons:exchange-vertical",
-        href: "/admin/finance/binary",
+            key: "admin-binary-durations",
+            title: "Trading Durations",
+            href: "/admin/finance/binary/duration",
+            permission: "access.binary.duration",
+            icon: "ph:clock-duotone",
             description:
-              "Binary options trading system with market setup, duration management, and payout configuration.",
-            permission: ["access.binary.market", "access.binary.duration"],
-            child: [
-              {
-                key: "admin-binary-markets",
-                title: "Binary Markets",
-                href: "/admin/finance/binary/market",
-                permission: "access.binary.market",
-                icon: "ri:exchange-2-line",
-                description:
-                  "Configure binary options markets with asset pairs, trading parameters, and market hours.",
-              },
-              {
-                key: "admin-binary-durations",
-                title: "Trading Durations",
-                href: "/admin/finance/binary/duration",
-                permission: "access.binary.duration",
-                icon: "ph:clock-duotone",
-                description:
-                  "Set trading timeframes and payout percentages for binary options with risk management controls.",
+              "Set trading timeframes and payout percentages for binary options with risk management controls.",
           },
         ],
       },
@@ -268,7 +281,11 @@ export const adminMenu: MenuItem[] = [
         icon: "solar:course-up-bold-duotone",
         description:
           "Investment product management with plan creation, performance tracking, and portfolio oversight tools.",
-        permission: ["access.investment.plan", "access.investment.duration", "access.investment"],
+        permission: [
+          "access.investment.plan",
+          "access.investment.duration",
+          "access.investment",
+        ],
         child: [
           {
             key: "admin-investment-plans",
@@ -426,7 +443,8 @@ export const adminMenu: MenuItem[] = [
     title: "Content",
     href: "/admin/content",
     icon: "solar:document-text-bold-duotone",
-    description: "Comprehensive content management system for blogs, media assets, and dynamic website content.",
+    description:
+      "Comprehensive content management system for blogs, media assets, and dynamic website content.",
     permission: ["access.content.media", "access.content.slider"],
     child: [
       {
@@ -575,16 +593,6 @@ export const adminMenu: MenuItem[] = [
                   "Real-time position monitoring with P&L tracking, margin calls, and automated risk management.",
               },
             ],
-          },
-          {
-            key: "admin-forex-platform",
-            title: "Forex Trading",
-            icon: "ph:currency-dollar-simple-duotone",
-            extension: "forex",
-            permission: "access.forex.account",
-            href: "/admin/forex/account",
-            description:
-              "Professional forex trading with MetaTrader integration, algorithmic trading, and institutional liquidity.",
           },
           {
             key: "admin-p2p-platform",
@@ -808,7 +816,10 @@ export const adminMenu: MenuItem[] = [
         icon: "ph:chat-circle-duotone",
         description:
           "Platform communication management including notifications, announcements, and user messaging systems.",
-        permission: ["access.notification.template", "access.system.announcement"],
+        permission: [
+          "access.notification.template",
+          "access.system.announcement",
+        ],
         child: [
           {
             key: "admin-notification-templates",
@@ -1028,15 +1039,15 @@ export const userMenu: MenuItem[] = [
         description:
           "Discover, create, and trade unique digital assets in our curated NFT marketplace with auction capabilities and creator royalties.",
       },
-             {
-         key: "user-marketplace-store",
-         title: "Store",
-         href: "/ecommerce",
-         icon: "solar:bag-smile-bold-duotone",
-         extension: "ecommerce",
-         description:
-           "Premium marketplace featuring both digital and physical products with secure payment processing, worldwide shipping, and buyer protection.",
-       },
+      {
+        key: "user-marketplace-store",
+        title: "Store",
+        href: "/ecommerce",
+        icon: "solar:bag-smile-bold-duotone",
+        extension: "ecommerce",
+        description:
+          "Premium marketplace featuring both digital and physical products with secure payment processing, worldwide shipping, and buyer protection.",
+      },
     ],
   },
   {
@@ -1077,15 +1088,15 @@ export const userMenu: MenuItem[] = [
       },
     ],
   },
-     {
-     key: "user-insights",
-     title: "Insights",
-     href: "/blog",
-     icon: "fluent:content-view-28-regular",
-     env: process.env.NEXT_PUBLIC_BLOG_STATUS,
-     description:
-       "Professional market analysis, trading insights, and industry news from our team of financial experts and market researchers.",
-   },
+  {
+    key: "user-insights",
+    title: "Insights",
+    href: "/blog",
+    icon: "fluent:content-view-28-regular",
+    env: process.env.NEXT_PUBLIC_BLOG_STATUS,
+    description:
+      "Professional market analysis, trading insights, and industry news from our team of financial experts and market researchers.",
+  },
 ];
 
 function isItemVisible(
@@ -1147,7 +1158,14 @@ function filterChildItems(
 
   const filtered = items
     .map((item) =>
-      filterMenuItem(item, user, checkPermission, hasExtension, getSetting, isAdminMenu)
+      filterMenuItem(
+        item,
+        user,
+        checkPermission,
+        hasExtension,
+        getSetting,
+        isAdminMenu
+      )
     )
     .filter((item): item is MenuItem => !!item);
 
@@ -1166,7 +1184,14 @@ function filterMegaMenuItems(
 
   const filtered = megaMenu
     .map((item) =>
-      filterMenuItem(item, user, checkPermission, hasExtension, getSetting, isAdminMenu)
+      filterMenuItem(
+        item,
+        user,
+        checkPermission,
+        hasExtension,
+        getSetting,
+        isAdminMenu
+      )
     )
     .filter((item): item is MenuItem => !!item);
 
@@ -1204,11 +1229,21 @@ function filterMenuItem(
     child: filteredChild,
     megaMenu: filteredMegaMenu,
     // Add disabled state for admin menu extensions
-    disabled: isAdminMenu && item.extension && !hasExtension(item.extension) ? true : false,
+    disabled:
+      isAdminMenu && item.extension && !hasExtension(item.extension)
+        ? true
+        : false,
   };
 
   if (
-    !isItemVisible(updatedItem, user, checkPermission, hasExtension, getSetting, isAdminMenu)
+    !isItemVisible(
+      updatedItem,
+      user,
+      checkPermission,
+      hasExtension,
+      getSetting,
+      isAdminMenu
+    )
   ) {
     return null;
   }
@@ -1237,19 +1272,19 @@ export function getMenu({
     if (!permissions) return true;
     const perms = Array.isArray(permissions) ? permissions : [permissions];
     if (perms.length === 0) return true;
-    
+
     // Convert permission objects to permission names for comparison
-    const userPermissionNames = userPermissions.map((p: any) => 
-      typeof p === 'string' ? p : p.name
+    const userPermissionNames = userPermissions.map((p: any) =>
+      typeof p === "string" ? p : p.name
     );
-    
+
     return perms.every((perm) => userPermissionNames.includes(perm));
   };
 
   const hasExtension = (name: string) => {
     if (!extensions) return false;
     const hasExt = extensions.includes(name);
-    
+
     return hasExt;
   };
 
@@ -1260,13 +1295,22 @@ export function getMenu({
 
   const filteredMenu = menu
     .map((item) =>
-      filterMenuItem(item, user, checkPermission, hasExtension, getSetting, isAdminMenu)
+      filterMenuItem(
+        item,
+        user,
+        checkPermission,
+        hasExtension,
+        getSetting,
+        isAdminMenu
+      )
     )
     .filter((item): item is MenuItem => !!item);
 
   // Debug logging for final filtered menu in admin
-  if (isAdminMenu && typeof window !== 'undefined') {
-    const extensionItems = filteredMenu.find(item => item.key === "admin-platform-extensions");
+  if (isAdminMenu && typeof window !== "undefined") {
+    const extensionItems = filteredMenu.find(
+      (item) => item.key === "admin-platform-extensions"
+    );
   }
 
   return filteredMenu;
