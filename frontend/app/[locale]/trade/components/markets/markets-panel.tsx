@@ -125,21 +125,17 @@ export default function MarketsPanel({
       if (
         typeParam === "spot" ||
         typeParam === "spot-eco" ||
-        typeParam === "futures" ||
         typeParam === "forex"
       ) {
         const normalizedType = (typeParam === "spot-eco" ? "spot" : typeParam) as
           | "spot"
-          | "futures"
           | "forex";
         setMarketType(normalizedType);
-        setActiveTab(
-          normalizedType === "spot"
-            ? "markets"
-            : normalizedType === "futures"
-              ? "futures"
-              : "forex"
-        );
+        setActiveTab(normalizedType === "spot" ? "markets" : "forex");
+      } else if (typeParam === "futures") {
+        // Futures tab removed; fallback to spot list
+        setMarketType("spot");
+        setActiveTab("markets");
       } else {
         // If no type parameter, default to spot
         setMarketType("spot");
@@ -157,8 +153,6 @@ export default function MarketsPanel({
           // Note: "spot-eco" should be treated as "spot"
           if (typeParam === "spot" || typeParam === "spot-eco" || !typeParam) {
             setSpotSelectedMarket(fullSymbol);
-          } else if (typeParam === "futures") {
-            setFuturesSelectedMarket(fullSymbol);
           } else if (typeParam === "forex") {
             setForexSelectedMarket(fullSymbol);
           }
@@ -809,8 +803,6 @@ export default function MarketsPanel({
     // Update market type based on tab selection
     if (value === "markets") {
       setMarketType("spot");
-    } else if (value === "futures") {
-      setMarketType("futures");
     } else if (value === "forex") {
       setMarketType("forex");
     }
@@ -834,15 +826,12 @@ export default function MarketsPanel({
         className="w-full flex flex-col h-full overflow-hidden"
         onValueChange={handleTabChange}
       >
-        <TabsList className="w-full grid grid-cols-4">
+        <TabsList className="w-full grid grid-cols-3">
           <TabTrigger value="watchlist" icon={<Star className="h-3 w-3" />}>
             {t("Watchlist")}
           </TabTrigger>
           <TabTrigger value="markets" icon={<BarChart2 className="h-3 w-3" />}>
             {t("Spot")}
-          </TabTrigger>
-          <TabTrigger value="futures" icon={<Zap className="h-3 w-3" />}>
-            {t("Futures")}
           </TabTrigger>
           <TabTrigger value="forex" icon={<BarChart2 className="h-3 w-3" />}>
             {t("Forex")}
@@ -874,37 +863,6 @@ export default function MarketsPanel({
               onMarketSelect={handleMarketSelect}
               onToggleWatchlist={toggleWatchlist}
               marketType="spot"
-              onSortVolume={() => handleSort("volume")}
-              onSortPrice={() => handleSort("price")}
-            />
-          </div>
-        </TabContent>
-
-        <TabContent
-          value="futures"
-          className="flex flex-col flex-1 overflow-hidden"
-        >
-          <SearchBar
-            placeholder="Search futures..."
-            value={searchQuery}
-            onChange={setSearchQuery}
-          />
-
-          <ColumnHeaders
-            leftColumn={{ label: "Symbol", sortField: "name" }}
-            rightColumn={{ label: "Funding Rate", sortField: "funding" }}
-            sortCriteria={sortCriteria}
-            onSort={handleSort}
-          />
-
-          <div className="overflow-y-auto flex-1 min-h-0 scrollbar-none">
-            <MarketList
-              markets={filteredMarkets}
-              isLoading={isFuturesLoading}
-              selectedMarket={futuresSelectedMarket}
-              onMarketSelect={handleMarketSelect}
-              onToggleWatchlist={toggleWatchlist}
-              marketType="futures"
               onSortVolume={() => handleSort("volume")}
               onSortPrice={() => handleSort("price")}
             />

@@ -919,15 +919,6 @@ export const userMenu: MenuItem[] = [
           "Execute immediate buy and sell orders at current market prices with advanced order types, depth charts, and professional trading tools.",
       },
       {
-        key: "user-trading-binary",
-        title: "Binary Options",
-        href: "/binary",
-        icon: "mdi:chart-line",
-        env: process.env.NEXT_PUBLIC_BINARY_STATUS,
-        description:
-          "Trade binary options with sophisticated analytics, risk management tools, and streamlined execution for time-sensitive strategies.",
-      },
-      {
         key: "user-trading-forex",
         title: "Forex",
         href: "/trade?type=forex",

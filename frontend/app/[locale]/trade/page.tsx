@@ -24,12 +24,6 @@ export default function TradePage() {
     if (pathname.startsWith("/binary")) {
       return { requiredFeature: "binary_trading" };
     }
-    const type = searchParams.get("type");
-    if (type === "futures") {
-      return {
-        requiredFeature: "futures_trading",
-      };
-    }
     return { requiredFeature: "trade" };
   }, [pathname, searchParams]);
 
