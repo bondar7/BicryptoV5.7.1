@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Kontrakty terminowe",
     "Spot": "Punkt",
-    "Watchlist": "Lista obserwowanych"
+    "Watchlist": "Lista obserwowanych",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Stwórz swoją listę obserwowanych",

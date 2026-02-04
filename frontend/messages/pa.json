@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ਫਿਊਚਰਜ਼",
     "Spot": "ਸਪਾਟ",
-    "Watchlist": "ਵਾਚਲਿਸਟ"
+    "Watchlist": "ਵਾਚਲਿਸਟ",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "ਆਪਣੀ ਵਾਚਲਿਸਟ ਬਣਾਓ",

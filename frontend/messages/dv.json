@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ފިއުޗާސް",
     "Spot": "ސްޕޮޓް",
-    "Watchlist": "ވޮޗްލިސްޓް"
+    "Watchlist": "ވޮޗްލިސްޓް",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "ތިބާގެ ވޮޗްލިސްޓް ތައްޔާރު ކުރައްވާ",

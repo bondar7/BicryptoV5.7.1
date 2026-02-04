@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futuuri",
     "Spot": "Läikkä",
-    "Watchlist": "Seurantalista"
+    "Watchlist": "Seurantalista",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Luo tarkkailulistasi",

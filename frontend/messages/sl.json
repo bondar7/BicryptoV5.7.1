@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Terminske pogodbe",
     "Spot": "Spot",
-    "Watchlist": "Seznam za opazovanje"
+    "Watchlist": "Seznam za opazovanje",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Ustvarjanje seznama za spremljanje",

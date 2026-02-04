@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "مستقبل",
     "Spot": "داغ",
-    "Watchlist": "واچ لسٹ"
+    "Watchlist": "واچ لسٹ",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "اپنی واچ لسٹ بنائیں",

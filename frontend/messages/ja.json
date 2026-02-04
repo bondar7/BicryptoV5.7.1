@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "先物",
     "Spot": "点",
-    "Watchlist": "ウォッチリスト"
+    "Watchlist": "ウォッチリスト",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "ウォッチリストを作成する",

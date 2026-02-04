@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "फ्यूचर्स",
     "Spot": "स्थान",
-    "Watchlist": "पहरेदार सूची"
+    "Watchlist": "पहरेदार सूची",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "तपाईंको वाचलिस्ट सिर्जना गर्नुहोस्",

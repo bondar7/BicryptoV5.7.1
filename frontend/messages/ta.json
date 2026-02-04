@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "எதிர்காலங்கள்",
     "Spot": "புள்ளி",
-    "Watchlist": "கண்காணிப்பு பட்டியல்"
+    "Watchlist": "கண்காணிப்பு பட்டியல்",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "உங்கள் கவனிப்புப் பட்டியலை உருவாக்கவும்",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ফিউচাৰ",
     "Spot": "স্পট",
-    "Watchlist": "নিৰীক্ষণ তালিকা"
+    "Watchlist": "নিৰীক্ষণ তালিকা",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "আপোনাৰ নিৰীক্ষণ তালিকা সৃষ্টি কৰক",

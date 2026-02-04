@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "선물",
     "Spot": "점",
-    "Watchlist": "관심목록"
+    "Watchlist": "관심목록",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "관심 목록 만들기",

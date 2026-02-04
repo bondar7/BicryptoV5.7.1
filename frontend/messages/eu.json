@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Etorkizunak",
     "Spot": "Mancha",
-    "Watchlist": "Jarraipen-zerrenda"
+    "Watchlist": "Jarraipen-zerrenda",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Sortu Zure Jarraipena",

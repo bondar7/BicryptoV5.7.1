@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Lumana'i",
     "Spot": "Nofoaga",
-    "Watchlist": "Lisi o matamata"
+    "Watchlist": "Lisi o matamata",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Fatu Lau Lisi Va'ava'ai",

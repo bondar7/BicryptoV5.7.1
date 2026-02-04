@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Ngā wā heke mai",
     "Spot": "Wāhi",
-    "Watchlist": "Rārangi Mātakitaki"
+    "Watchlist": "Rārangi Mātakitaki",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Waihangahia Tō Rārangi Mātaki",

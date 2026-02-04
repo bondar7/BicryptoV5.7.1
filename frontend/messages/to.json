@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Kahaʻu",
     "Spot": "Feituʻu",
-    "Watchlist": "Lisi Leʻo"
+    "Watchlist": "Lisi Leʻo",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Fakatupu Hoʻo Lisi Leʻo",

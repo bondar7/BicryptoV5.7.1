@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Fyuçerslər",
     "Spot": "Spot",
-    "Watchlist": "İzləmə Siyahısı"
+    "Watchlist": "İzləmə Siyahısı",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "İzləmə Siyahınızı Yaradın",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "फ्युचर्स",
     "Spot": "जागा",
-    "Watchlist": "वॉचलिस्ट"
+    "Watchlist": "वॉचलिस्ट",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "आपली वॉचलिस्ट तयार करा",

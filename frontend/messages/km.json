@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "អនាគត",
     "Spot": "កន្លែង",
-    "Watchlist": "បញ្ជីតាមដាន"
+    "Watchlist": "បញ្ជីតាមដាន",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "បង្កើតបញ្ជីឃ្លា��ម��លរបស់អ្នក។",

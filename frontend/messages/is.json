@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Framvirk",
     "Spot": "Skella",
-    "Watchlist": "Eftirlitslisti"
+    "Watchlist": "Eftirlitslisti",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Búðu til vaktlistann þinn",

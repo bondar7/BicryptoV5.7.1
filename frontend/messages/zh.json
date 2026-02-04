@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "期货",
     "Spot": "点",
-    "Watchlist": "自选列表"
+    "Watchlist": "自选列表",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "创建您的自选列表",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ফিউচার",
     "Spot": "স্পট",
-    "Watchlist": "ওয়াচলিস্ট"
+    "Watchlist": "ওয়াচলিস্ট",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "আপনার নজরতালিকা তৈরি করুন",

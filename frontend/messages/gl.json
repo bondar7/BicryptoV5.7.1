@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futuros",
     "Spot": "Punto",
-    "Watchlist": "Lista de vixilancia"
+    "Watchlist": "Lista de vixilancia",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Crea a túa lista de vixilancia",

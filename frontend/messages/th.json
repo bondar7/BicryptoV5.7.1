@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "อนาคต",
     "Spot": "จุด",
-    "Watchlist": "รายการเฝ้าดู"
+    "Watchlist": "รายการเฝ้าดู",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "สร้างรายการเฝ้าดูของคุณ",

@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futures",
     "Spot": "Spot",
-    "Watchlist": "Listahan ng Binabantayan"
+    "Watchlist": "Listahan ng Binabantayan",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Gumawa ng Iyong Listahan ng Binabantayan",

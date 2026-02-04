@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Veisiga ni mataka",
     "Spot": "Vanua",
-    "Watchlist": "Veitotogi"
+    "Watchlist": "Veitotogi",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Cakava na Nomu Watchlist",

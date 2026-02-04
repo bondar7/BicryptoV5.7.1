@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Határidőügylet",
     "Spot": "Hely",
-    "Watchlist": "Figyelőlista"
+    "Watchlist": "Figyelőlista",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Készítse el figyelőlistáját",

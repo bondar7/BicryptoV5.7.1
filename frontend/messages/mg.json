@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Ho avy",
     "Spot": "Spot",
-    "Watchlist": "Lisitry ny lisitra"
+    "Watchlist": "Lisitry ny lisitra",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Mamorona ny Lisitry ny Fanaraha-masonao",

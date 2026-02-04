@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "العقود الاجله",
     "Spot": "بقعه",
-    "Watchlist": "قائمة المراقبة"
+    "Watchlist": "قائمة المراقبة",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "إنشاء قائمة المراقبة الخاصة بك",

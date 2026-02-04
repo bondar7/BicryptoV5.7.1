@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Termingeschäfte",
     "Spot": "Fleck",
-    "Watchlist": "Beobachtungsliste"
+    "Watchlist": "Beobachtungsliste",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Erstellen Sie Ihre Watchlist",

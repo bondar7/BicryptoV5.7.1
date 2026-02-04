@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Фючърси",
     "Spot": "Място",
-    "Watchlist": "Списък за наблюдение"
+    "Watchlist": "Списък за наблюдение",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Създайте своя списък за наблюдение",

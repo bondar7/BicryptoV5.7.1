@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Fiti",
     "Spot": "Spot",
-    "Watchlist": "Lis Siveyans"
+    "Watchlist": "Lis Siveyans",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Kreye Lis Siveyans Ou",

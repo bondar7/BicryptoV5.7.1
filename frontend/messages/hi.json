@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "वायदा",
     "Spot": "स्थान",
-    "Watchlist": "वॉचलिस्ट"
+    "Watchlist": "वॉचलिस्ट",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "अपनी वॉचलिस्ट बनाएं",

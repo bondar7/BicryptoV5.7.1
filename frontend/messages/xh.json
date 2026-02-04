@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Ikamva",
     "Spot": "Indawo",
-    "Watchlist": "Uluhlu lokubukela"
+    "Watchlist": "Uluhlu lokubukela",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Yenza Uluhlu Lwakho Lokubukela",

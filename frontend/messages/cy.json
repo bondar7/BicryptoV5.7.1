@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Dyfodol",
     "Spot": "Smotyn",
-    "Watchlist": "Rhestr Wylio"
+    "Watchlist": "Rhestr Wylio",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Creu eich rhestr wylio",

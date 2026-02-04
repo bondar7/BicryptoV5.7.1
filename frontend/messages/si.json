@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "අනාගත",
     "Spot": "ස්පොට්",
-    "Watchlist": "මුර ලැයිස්තුව"
+    "Watchlist": "මුර ලැයිස්තුව",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "ඔබගේ නිරීක්ෂණ ලැයිස්තුව සාදන්න",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Συμβόλαια μελλοντικής εκπλήρωσης",
     "Spot": "Κηλίδα",
-    "Watchlist": "Λίστα Παρακολούθησης"
+    "Watchlist": "Λίστα Παρακολούθησης",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Δημιουργήστε τη λίστα παρακολούθησής σας",

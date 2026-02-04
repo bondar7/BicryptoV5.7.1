@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ಭವಿಷ್ಯಗಳು",
     "Spot": "ಸ್ಪಾಟ್",
-    "Watchlist": "ವಾಚ್‌ಲಿಸ್ಟ್"
+    "Watchlist": "ವಾಚ್‌ಲಿಸ್ಟ್",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "ನಿಮ್ಮ ವಾಚ್ ಲಿಸ್ಟ್ ರಚಿಸಿ",

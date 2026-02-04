@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futures",
     "Spot": "Spot",
-    "Watchlist": "Daptar Awas"
+    "Watchlist": "Daptar Awas",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Jieun Daptar Awas Anjeun",

@@ -7533,7 +7533,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futures",
     "Spot": "Flekk",
-    "Watchlist": "Overvåkningsliste"
+    "Watchlist": "Overvåkningsliste",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Lag din overvåkningsliste",

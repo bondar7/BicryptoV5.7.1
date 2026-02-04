@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ფიუჩერსები",
     "Spot": "ლაქა",
-    "Watchlist": "სათვალთვალო სია"
+    "Watchlist": "სათვალთვალო სია",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "შექმენით თქვენი საათების სია",

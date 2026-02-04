@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "အနာဂတ်",
     "Spot": "အကွက်",
-    "Watchlist": "စောင့်ကြည့်စာရင်း"
+    "Watchlist": "စောင့်ကြည့်စာရင်း",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "သင်၏ စောင့်ကြည့်စာရင်းကို ဖန်တီးပါ",

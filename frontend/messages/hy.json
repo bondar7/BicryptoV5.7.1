@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Ֆյուչերսներ",
     "Spot": "Սփոթ",
-    "Watchlist": "Դիտման Ցանկ"
+    "Watchlist": "Դիտման Ցանկ",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Ստեղծեք Ձեր Դիտման Ցանկը",

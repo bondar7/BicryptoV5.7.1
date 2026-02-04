@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Ateities",
     "Spot": "Vietoje",
-    "Watchlist": "Stebimų sąrašas"
+    "Watchlist": "Stebimų sąrašas",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Sukurkite stebimųjų sąrašą",

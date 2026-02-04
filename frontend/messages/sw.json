@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Wakati ujao",
     "Spot": "Doa",
-    "Watchlist": "Orodha ya Ufuatiliaji"
+    "Watchlist": "Orodha ya Ufuatiliaji",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Unda orodha yako ya kutazama",

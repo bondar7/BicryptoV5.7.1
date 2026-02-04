@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "ഫ്യൂച്ചറുകൾ",
     "Spot": "സ്പോട്ട്",
-    "Watchlist": "വാച്ച്‌ലിസ്റ്റ്"
+    "Watchlist": "വാച്ച്‌ലിസ്റ്റ്",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "നിങ്ങളുടെ വാച്ച് ലിസ്റ്റ് സൃഷ്ടിക്കുക",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "期貨",
     "Spot": "現貨",
-    "Watchlist": "自選名單"
+    "Watchlist": "自選名單",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "建立你嘅自選名單",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Zamtsogolo",
     "Spot": "Malo",
-    "Watchlist": "Mndandanda Wowonera"
+    "Watchlist": "Mndandanda Wowonera",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Pangani Mndandanda Wanu Wowonera",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Futurs",
     "Spot": "Lloc",
-    "Watchlist": "Llista de seguiment"
+    "Watchlist": "Llista de seguiment",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Crea la teva llista de seguiment",

@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "የወደፊቱ ጊዜ",
     "Spot": "ስፖት",
-    "Watchlist": "የክትትል ዝርዝር"
+    "Watchlist": "የክትትል ዝርዝር",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "የእርስዎን የመጠበቂያ ዝርዝር ይፍጠሩ",

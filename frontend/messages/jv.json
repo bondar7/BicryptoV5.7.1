@@ -7534,7 +7534,8 @@
   "trade/components/markets/markets-panel": {
     "Futures": "Spot",
     "Spot": "Daftar Pantauan",
-    "Watchlist": "Gawe Daftar Pantauan Sampeyan"
+    "Watchlist": "Gawe Daftar Pantauan Sampeyan",
+    "Forex": "Forex"
   },
   "trade/components/markets/watchlist-empty-state": {
     "create_your_watchlist": "Volatilitas pasar bisa mengaruhi rega",
