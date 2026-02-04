@@ -932,7 +932,6 @@ export const userMenu: MenuItem[] = [
         title: "Forex",
         href: "/trade?type=forex",
         icon: "mdi:chart-line-variant",
-        extension: "forex",
         description:
           "Access global forex, stocks, and commodities with custom charting and real-time demo feeds.",
       },
