@@ -274,8 +274,8 @@ export class MarketDataWebSocketService {
     for (const key of pendingKeys) {
       const subscription = this.activeSubscriptions.get(key);
       if (subscription) {
-        // Use type and symbol as deduplication key
-        const dedupeKey = `${subscription.type}:${subscription.symbol}`;
+        // Use type, symbol, interval, and limit as deduplication key
+        const dedupeKey = `${subscription.type}:${subscription.symbol}:${subscription.interval || ""}:${subscription.limit || ""}`;
         uniqueSubscriptions.set(dedupeKey, subscription);
       }
     }
@@ -557,14 +557,11 @@ export class MarketDataWebSocketService {
     // If connected, send subscription immediately (if not already sent)
     // Otherwise, queue it for when connection is established
     if (isConnected) {
-      if (
-        !this.subscriptionSent.has(subscriptionKey) &&
-        !this.isStreamSubscribed(streamKey, marketType)
-      ) {
+      if (!this.subscriptionSent.has(subscriptionKey)) {
         this.sendSubscriptionMessage(formattedSubscription);
         this.subscriptionSent.set(subscriptionKey, true);
 
-        // Mark this stream as subscribed
+        // Track stream subscription for local bookkeeping
         this.activeStreamSubscriptions.get(marketType)!.add(streamKey);
       }
     } else {
@@ -703,7 +700,7 @@ export class MarketDataWebSocketService {
       // If no more callbacks, unsubscribe from the WebSocket
       if (callbacks.size === 0) {
         // Check if any other subscriptions are using this stream BEFORE removing the current one
-        let shouldUnsubscribe = true;
+        let shouldUnsubscribeStream = true;
         for (const [key, sub] of this.activeSubscriptions.entries()) {
           if (
             key !== subscriptionKey && // Don't count the current subscription we're removing
@@ -711,7 +708,7 @@ export class MarketDataWebSocketService {
             sub.type === type &&
             this.getStreamKey(sub.type, sub.limit, sub.interval) === streamKey
           ) {
-            shouldUnsubscribe = false;
+            shouldUnsubscribeStream = false;
             break;
           }
         }
@@ -724,12 +721,12 @@ export class MarketDataWebSocketService {
 
         // Remove from activeStreamSubscriptions IMMEDIATELY so new subscriptions can use this stream
         // This must happen before the debounce timeout to allow immediate re-subscription
-        if (shouldUnsubscribe) {
+        if (shouldUnsubscribeStream) {
           this.activeStreamSubscriptions.get(marketType)?.delete(streamKey);
         }
 
-        // Only send unsubscribe if we previously sent a subscribe and no other subscriptions are using this stream
-        if (this.subscriptionSent.has(subscriptionKey) && shouldUnsubscribe) {
+        // Always send unsubscribe for this specific subscription (symbol + interval)
+        if (this.subscriptionSent.has(subscriptionKey)) {
           // Cancel any existing unsubscribe timer for this exact subscription
           if (this.unsubscribeTimers.has(subscriptionKey)) {
             clearTimeout(this.unsubscribeTimers.get(subscriptionKey)!);
@@ -737,22 +734,8 @@ export class MarketDataWebSocketService {
 
           // Debounce the unsubscribe by 100ms to handle rapid component remounts
           const timer = setTimeout(() => {
-            // Double-check that no new subscriptions appeared FOR THE SAME SYMBOL during the debounce period
-            let stillShouldUnsubscribe = true;
-            for (const [key, sub] of this.activeSubscriptions.entries()) {
-              if (
-                key === subscriptionKey || // Check if the EXACT subscription (same symbol) still exists
-                (
-                  sub.marketType === marketType &&
-                  sub.type === type &&
-                  sub.symbol === formattedSymbol && // IMPORTANT: Check symbol matches
-                  this.getStreamKey(sub.type, sub.limit, sub.interval) === streamKey
-                )
-              ) {
-                stillShouldUnsubscribe = false;
-                break;
-              }
-            }
+            // Double-check that no new subscriptions appeared FOR THE SAME KEY during the debounce period
+            const stillShouldUnsubscribe = !this.activeSubscriptions.has(subscriptionKey);
 
             if (stillShouldUnsubscribe) {
               this.sendUnsubscriptionMessage(subscription);
@@ -780,11 +763,6 @@ export class MarketDataWebSocketService {
     const formattedSymbol = this.formatSymbol(symbol);
     const streamKey = this.getStreamKey(type, limit, interval);
     const subscriptionKey = this.getSubscriptionKey(type, formattedSymbol, marketType, interval);
-
-    // Check if this stream is already subscribed
-    if (this.isStreamSubscribed(streamKey, marketType)) {
-      return;
-    }
 
     // Create the subscription message
     const message = {
@@ -829,8 +807,7 @@ export class MarketDataWebSocketService {
     // Send unsubscription message to the appropriate WebSocket connection
     wsManager.sendMessage(message, marketType);
 
-    // Remove this stream from active subscriptions
-    this.activeStreamSubscriptions.get(marketType)?.delete(streamKey);
+    // Stream bookkeeping is handled in unsubscribe to avoid removing shared streams
   }
 
   // Get the API endpoint for a market type

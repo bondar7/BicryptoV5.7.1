@@ -280,8 +280,36 @@ export class ForexFeedService {
     const now = Date.now();
     const intervalMs = INTERVAL_MS[interval] || 60 * 1000;
     const bucket = Math.floor(now / intervalMs) * intervalMs;
-    const candles = await this.getOHLCV(symbol, interval, bucket, bucket);
-    return candles[0] || null;
+
+    const market = await this.getMarket(symbol);
+    if (!market) return null;
+
+    const cfg = getPriceFeedConfig(market.metadata);
+    const open = priceAt(market.basePrice, symbol, bucket);
+    const close = priceAt(market.basePrice, symbol, now);
+
+    const t1 = Math.min(bucket + intervalMs * 0.25, now);
+    const t2 = Math.min(bucket + intervalMs * 0.5, now);
+    const t3 = Math.min(bucket + intervalMs * 0.75, now);
+
+    const p1 = priceAt(market.basePrice, symbol, t1);
+    const p2 = priceAt(market.basePrice, symbol, t2);
+    const p3 = priceAt(market.basePrice, symbol, t3);
+
+    const high = Math.max(open, close, p1, p2, p3);
+    const low = Math.min(open, close, p1, p2, p3);
+
+    const seedKey = `${symbol}:${bucket}:candle`;
+    const adjOpen = applyPriceFeed(open, cfg, seedKey);
+    const adjClose = applyPriceFeed(close, cfg, seedKey);
+    const adjHigh = applyPriceFeed(high, cfg, seedKey);
+    const adjLow = applyPriceFeed(low, cfg, seedKey);
+
+    const progress = Math.max(0.01, Math.min(1, (now - bucket) / intervalMs));
+    const baseVolume = 100 + seededRandom(`${symbol}:${bucket}:vol`) * 1000;
+    const volume = baseVolume * progress;
+
+    return [bucket, adjOpen, adjHigh, adjLow, adjClose, volume];
   }
 
   public async getSyntheticOrderbook(
